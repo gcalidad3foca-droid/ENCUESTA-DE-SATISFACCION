@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Dashboard Encuestas de Satisfacción — FOCA / VIU</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/SheetJS/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --blue:#1e3c72;--blue2:#5B8CD6;--viu:#86C5DA;
+  --gray800:#1e293b;--gray600:#475569;--gray400:#94a3b8;--gray200:#e2e8f0;--gray100:#f1f5f9;
+  --green:#15803d;--orange:#b45309;--red:#b91c1c;
+  --shadow:0 4px 14px rgba(30,60,114,.08);
+}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;background:#f4f7fb;color:var(--gray800)}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 18px 60px}
+
+/* ── Header ── */
+.dbi-header{background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--gray200);padding:18px 22px;margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.dbi-title-wrap{display:flex;flex-direction:column;gap:3px}
+.dbi-title{font-size:18px;font-weight:800;color:var(--blue)}
+.dbi-sub{font-size:12px;color:var(--gray400)}
+.dbi-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dbi-ent-btns{display:flex;gap:6px;background:var(--gray100);border-radius:12px;padding:4px}
+.dbi-ent-btn{border:0;background:transparent;border-radius:9px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--gray600);transition:.2s}
+.dbi-ent-btn img{height:18px;object-fit:contain}
+.dbi-ent-btn.active{background:#fff;box-shadow:0 2px 8px rgba(30,60,114,.12);color:var(--blue)}
+.db-fsel{padding:9px 12px;border:1.5px solid var(--gray200);border-radius:10px;font-size:12.5px;font-family:inherit;color:var(--gray800);background:#fff}
+.db-btn{border:0;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
+.db-btn-ref{background:var(--gray100);color:var(--blue)}
+.db-btn-ref:hover{background:var(--gray200)}
+.db-btn-xls{background:linear-gradient(135deg,#1d9a5c,#15803d);color:#fff;box-shadow:0 6px 16px rgba(21,128,61,.3)}
+.db-btn-xls:hover{transform:translateY(-1px)}
+.db-btn-pdf{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;box-shadow:0 6px 16px rgba(153,27,27,.3)}
+.db-btn-pdf:hover{transform:translateY(-1px)}
+
+/* ── Multi-select de meses ── */
+.mes-wrap{position:relative}
+.mes-btn{padding:9px 12px;border:1.5px solid var(--gray200);border-radius:10px;font-size:12.5px;font-family:inherit;color:var(--gray800);background:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:600}
+.mes-btn:hover{border-color:var(--blue2)}
+.mes-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--gray200);border-radius:12px;box-shadow:0 14px 34px rgba(30,60,114,.18);padding:10px;width:220px;max-height:280px;overflow-y:auto;z-index:50}
+.mes-panel.open{display:block}
+.mes-panel-actions{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--blue2);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--gray100)}
+.mes-panel-actions a{cursor:pointer;text-decoration:none;color:var(--blue2)}
+.mes-opt{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:12.5px;color:var(--gray800);cursor:pointer;border-radius:6px}
+.mes-opt:hover{background:var(--gray100)}
+.mes-opt input{accent-color:var(--blue2);width:15px;height:15px}
+
+/* ── KPI row ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.kpi-card{background:#fff;border-radius:14px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:14px 16px}
+.kpi-l{font-size:10.5px;font-weight:700;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpi-v{font-size:26px;font-weight:800;line-height:1;color:var(--gray800)}
+.kpi-s{font-size:11px;color:var(--gray400);margin-top:4px}
+
+/* ── Domain summary (Res. 256) ── */
+.domain-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.domain-card{background:#fff;border-radius:14px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:14px}
+.domain-card .tag{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:4px 9px;border-radius:8px}
+.domain-card.experiencia .tag{background:#eef2ff;color:#5B8CD6}
+.domain-card.seguridad .tag{background:#fef2f2;color:#b91c1c}
+.domain-card .dv{font-size:24px;font-weight:800;color:var(--blue)}
+.domain-card .dl{font-size:11.5px;color:var(--gray600);margin-top:2px}
+
+/* ── Section title ── */
+.section-title{font-size:14px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+
+/* ── Question cards ── */
+.q-grid{display:grid;gap:12px}
+.q-card{background:#fff;border-radius:14px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:16px 18px}
+.q-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.q-num{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:50%;background:var(--gray100);color:var(--blue2);font-size:12px;font-weight:800;margin-right:6px}
+.q-text{font-size:13.5px;font-weight:700;color:var(--gray800);line-height:1.4}
+.q-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.q-badge{font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
+.q-badge.sec{background:var(--gray100);color:var(--gray600)}
+.q-badge.dom-exp{background:#eef2ff;color:#5B8CD6}
+.q-badge.dom-seg{background:#fef2f2;color:#b91c1c}
+.q-n{font-size:11px;color:var(--gray400);font-weight:700;white-space:nowrap}
+.q-bar{display:flex;height:26px;border-radius:8px;overflow:hidden;background:var(--gray100);margin-bottom:8px}
+.q-bar-seg{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff;transition:.3s}
+.q-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--gray600)}
+.q-legend span{display:inline-flex;align-items:center;gap:5px}
+.q-legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+.q-empty{font-size:12px;color:var(--gray400);font-style:italic}
+
+/* colors per answer option */
+.c-mb{background:#15803d}.c-b{background:#65a30d}.c-r{background:#d97706}.c-m{background:#ea580c}.c-mm{background:#b91c1c}
+.c-si{background:#15803d}.c-no{background:#b91c1c}
+.c-dsi{background:#15803d}.c-psi{background:#65a30d}.c-pno{background:#d97706}.c-dno{background:#b91c1c}
+
+.loading,.errbox{text-align:center;padding:50px 20px;color:var(--gray400)}
+.errbox{color:var(--red);font-weight:700}
+
+@media(max-width:980px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .domain-row{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .dbi-header{flex-direction:column;align-items:stretch}
+  .dbi-filters{justify-content:stretch}
+  .db-fsel,.db-btn{flex:1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="dbi-header">
+    <div class="dbi-title-wrap">
+      <span class="dbi-title">Dashboard · Encuestas de Satisfacción</span>
+      <span class="dbi-sub" id="db-sub">Cargando datos…</span>
+    </div>
+    <div class="dbi-filters">
+      <div class="dbi-ent-btns" id="ent-btns">
+        <button class="dbi-ent-btn active" data-ent="" onclick="setEnt('',this)"><span>⊕ Todas</span></button>
+        <button class="dbi-ent-btn" data-ent="FOCA" onclick="setEnt('FOCA',this)"><img src="https://i.imgur.com/5pNuFBp.png" alt="FOCA"></button>
+        <button class="dbi-ent-btn" data-ent="VIU" onclick="setEnt('VIU',this)"><img src="https://i.imgur.com/qQ4lN8v.png" alt="VIU"></button>
+      </div>
+      <select class="db-fsel" id="f-sede" onchange="applyFilters()"><option value="">Todas las sedes</option></select>
+      <select class="db-fsel" id="f-pagador" onchange="applyFilters()"><option value="">Todas las EPS / medicina prepagada</option></select>
+      <div class="mes-wrap">
+        <button type="button" class="mes-btn" id="mes-btn" onclick="toggleMesPanel()"><i class="fas fa-calendar-days"></i> <span id="mes-btn-label">Todos los meses</span> <i class="fas fa-chevron-down" style="font-size:9px"></i></button>
+        <div class="mes-panel" id="mes-panel">
+          <div class="mes-panel-actions"><a onclick="selectAllMeses()">Seleccionar todos</a><a onclick="clearMeses()">Limpiar</a></div>
+          <div id="mes-opts"></div>
+        </div>
+      </div>
+      <select class="db-fsel" id="f-dominio" onchange="applyFilters()">
+        <option value="">Todas las preguntas</option>
+        <option value="res256">Solo indicadores Res. 256/2016 (preguntas 13 y 14)</option>
+      </select>
+      <button class="db-btn db-btn-ref" onclick="loadData()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+      <button class="db-btn db-btn-pdf" onclick="generarInformePDF()"><i class="fas fa-file-pdf"></i> Generar Informe</button>
+      <button class="db-btn db-btn-xls" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Descargar Excel</button>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Cargando encuestas…</div>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════ CONFIGURACIÓN ════════════════ */
+// Pegue aquí la MISMA URL del Web App de Apps Script que configuró en los formularios de FOCA y VIU.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2alUFqRFN2jhbVr4afea-NdR1Uyg5ZnruFdryMbTRT_JFe93MF4lgwRusulELIJvLOg/exec';
+
+/* ════════════════ ESCALAS Y COLORES POR PREGUNTA ════════════════ */
+const SCALE_SETS = {
+  likert: { opts:['Muy Buena','Buena','Regular','Mala','Muy Mala'], cls:['c-mb','c-b','c-r','c-m','c-mm'] },
+  sino:   { opts:['Sí','No'], cls:['c-si','c-no'] },
+  nps:    { opts:['Definitivamente sí','Probablemente sí','Probablemente no','Definitivamente no'], cls:['c-dsi','c-psi','c-pno','c-dno'] }
+};
+function scaleFor(qid){
+  if(qid==='q4'||qid==='q10'||qid==='q12') return SCALE_SETS.sino;
+  if(qid==='q14') return SCALE_SETS.nps;
+  return SCALE_SETS.likert;
+}
+
+let RAW = { questions:{}, resumen:[], respuestas:[] };
+let currentEnt = '';
+let selectedMonths = new Set(); // vacío = todos los meses
+const MESES_NOMBRE = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function mesKey(fechaStr){
+  if(!fechaStr) return null;
+  const s = String(fechaStr);
+  if(s.length < 7) return null;
+  return s.slice(0,7); // "YYYY-MM"
+}
+function mesLabel(key){
+  const [y,m] = key.split('-');
+  return MESES_NOMBRE[parseInt(m,10)-1] + ' ' + y;
+}
+
+async function loadData(){
+  document.getElementById('content').innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Cargando encuestas…</div>';
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGUE_AQUI')){
+    document.getElementById('content').innerHTML = '<div class="errbox">Falta configurar APPS_SCRIPT_URL en el código del dashboard (línea de configuración al inicio del script).</div>';
+    document.getElementById('db-sub').textContent = 'Sin conexión configurada';
+    return;
+  }
+  try{
+    const res = await fetch(APPS_SCRIPT_URL);
+    const json = await res.json();
+    if(!json.ok) throw new Error(json.error || 'Error desconocido');
+    RAW = json;
+    populateSedes();
+    populatePagadores();
+    populateMeses();
+    applyFilters();
+  }catch(err){
+    document.getElementById('content').innerHTML = '<div class="errbox">No se pudo cargar la información: '+err.message+'</div>';
+  }
+}
+
+function populateSedes(){
+  const sel = document.getElementById('f-sede');
+  const sedes = [...new Set(RAW.resumen.map(r=>r['Sede']).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todas las sedes</option>' + sedes.map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+
+function populatePagadores(){
+  const sel = document.getElementById('f-pagador');
+  const pagadores = [...new Set(RAW.resumen.map(r=>r['EPS / Pagador']).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todas las EPS / medicina prepagada</option>' + pagadores.map(p=>`<option value="${p}">${p}</option>`).join('');
+}
+
+let totalMesesDisponibles = 0;
+function populateMeses(){
+  const keys = [...new Set(RAW.resumen.map(r=>mesKey(r['Fecha Atención'])).filter(Boolean))].sort();
+  totalMesesDisponibles = keys.length;
+  selectedMonths = new Set(); // al recargar, por defecto se ven todos los meses
+  const opts = document.getElementById('mes-opts');
+  if(!keys.length){ opts.innerHTML = '<div class="q-empty">No hay fechas registradas todavía.</div>'; return; }
+  opts.innerHTML = keys.map(k=>`<label class="mes-opt"><input type="checkbox" value="${k}" onchange="toggleMes('${k}',this.checked)"> ${mesLabel(k)}</label>`).join('');
+  updateMesBtnLabel();
+}
+
+function toggleMesPanel(){
+  document.getElementById('mes-panel').classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  const wrap = document.querySelector('.mes-wrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('mes-panel').classList.remove('open');
+});
+
+function toggleMes(key, checked){
+  if(checked) selectedMonths.add(key); else selectedMonths.delete(key);
+  updateMesBtnLabel();
+  applyFilters();
+}
+function selectAllMeses(){
+  const boxes = document.querySelectorAll('#mes-opts input[type=checkbox]');
+  selectedMonths = new Set([...boxes].map(c=>c.value));
+  boxes.forEach(c=>c.checked=true);
+  updateMesBtnLabel();
+  applyFilters();
+}
+function clearMeses(){
+  // "Limpiar" deja la selección vacía visualmente marcada como "ningún mes" -> se interpreta como todos por defecto si no se marca nada
+  selectedMonths = new Set();
+  document.querySelectorAll('#mes-opts input[type=checkbox]').forEach(c=>c.checked=false);
+  updateMesBtnLabel();
+  applyFilters();
+}
+function updateMesBtnLabel(){
+  const label = document.getElementById('mes-btn-label');
+  if(selectedMonths.size===0 || selectedMonths.size===totalMesesDisponibles) label.textContent = 'Todos los meses';
+  else if(selectedMonths.size===1) label.textContent = mesLabel([...selectedMonths][0]);
+  else label.textContent = selectedMonths.size + ' meses seleccionados';
+}
+
+function setEnt(ent, btn){
+  currentEnt = ent;
+  document.querySelectorAll('.dbi-ent-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters(){
+  const sede = document.getElementById('f-sede').value;
+  const pagador = document.getElementById('f-pagador').value;
+  const soloRes256 = document.getElementById('f-dominio').value === 'res256';
+
+  let resumen = RAW.resumen.filter(r =>
+    (!currentEnt || r['Institución']===currentEnt) &&
+    (!sede || r['Sede']===sede) &&
+    (!pagador || r['EPS / Pagador']===pagador) &&
+    (selectedMonths.size===0 || selectedMonths.has(mesKey(r['Fecha Atención'])))
+  );
+  const idsValidos = new Set(resumen.map(r=>r['ID Encuesta']));
+  let respuestas = RAW.respuestas.filter(r => {
+    if(!idsValidos.has(r['ID Encuesta'])) return false;
+    if(soloRes256){
+      const qid = 'q'+r['N° Pregunta'];
+      const meta = RAW.questions[qid];
+      if(!meta || !meta.res256) return false;
+    }
+    return true;
+  });
+
+  render(resumen, respuestas);
+}
+
+function render(resumen, respuestas){
+  document.getElementById('db-sub').textContent = resumen.length + ' encuesta(s) · actualizado ' + new Date().toLocaleString('es-CO');
+
+  // ── KPIs generales ──
+  const total = resumen.length;
+  const promedios = resumen.map(r=>parseFloat(r['% Satisfacción Total'])).filter(v=>!isNaN(v));
+  const promedioGlobal = promedios.length ? (promedios.reduce((a,b)=>a+b,0)/promedios.length).toFixed(1) : '—';
+  const altos = promedios.filter(v=>v>=85).length;
+  const medios = promedios.filter(v=>v>=70 && v<85).length;
+  const bajos = promedios.filter(v=>v<70).length;
+
+  const kpiHtml = `
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-l">Encuestas</div><div class="kpi-v">${total}</div><div class="kpi-s">Respondidas en el periodo filtrado</div></div>
+    <div class="kpi-card"><div class="kpi-l">Satisfacción global</div><div class="kpi-v" style="color:var(--blue)">${promedioGlobal}${promedioGlobal!=='—'?'%':''}</div><div class="kpi-s">Promedio de todas las preguntas</div></div>
+    <div class="kpi-card"><div class="kpi-l">Satisfacción alta ≥85%</div><div class="kpi-v" style="color:var(--green)">${altos}</div><div class="kpi-s">${total?Math.round(altos/total*100):0}% de las encuestas</div></div>
+    <div class="kpi-card"><div class="kpi-l">Satisfacción media 70-84%</div><div class="kpi-v" style="color:var(--orange)">${medios}</div><div class="kpi-s">${total?Math.round(medios/total*100):0}% de las encuestas</div></div>
+    <div class="kpi-card"><div class="kpi-l">Satisfacción baja &lt;70%</div><div class="kpi-v" style="color:var(--red)">${bajos}</div><div class="kpi-s">${total?Math.round(bajos/total*100):0}% de las encuestas</div></div>
+  </div>`;
+
+  // ── Indicadores oficiales Resolución 256/2016 (solo preguntas 13 y 14) ──
+  const res256Ids = Object.keys(RAW.questions).filter(qid => RAW.questions[qid].res256);
+  const domHtml = res256Ids.length ? `<div class="domain-row">` + res256Ids.map(qid=>{
+    const meta = RAW.questions[qid];
+    const num = qid.replace('q','');
+    const vals = respuestas.filter(r=>String(r['N° Pregunta'])===num && r['Valor (%)']!=='' && !isNaN(parseFloat(r['Valor (%)']))).map(r=>parseFloat(r['Valor (%)']));
+    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
+    return `<div class="domain-card experiencia">
+      <div><span class="tag"><i class="fas fa-star"></i> Res. 256/2016</span></div>
+      <div><div class="dv">${avg}${avg!=='—'?'%':''}</div><div class="dl">${meta.indicador} · ${vals.length} respuesta(s)</div></div>
+    </div>`;
+  }).join('') + `</div>` : '';
+
+  // ── Tarjetas por pregunta ──
+  const qIds = Object.keys(RAW.questions);
+  const qHtml = qIds.map(qid=>{
+    const meta = RAW.questions[qid];
+    const num = qid.replace('q','');
+    const respsQ = respuestas.filter(r=>String(r['N° Pregunta'])===num);
+    const n = respsQ.length;
+    const scale = scaleFor(qid);
+
+    let barHtml = '<div class="q-empty">Sin respuestas para esta combinación de filtros.</div>';
+    let legendHtml = '';
+    if(n>0){
+      const counts = {};
+      scale.opts.forEach(o=>counts[o]=0);
+      respsQ.forEach(r=>{ if(counts.hasOwnProperty(r['Respuesta'])) counts[r['Respuesta']]++; });
+      barHtml = '<div class="q-bar">' + scale.opts.map((o,i)=>{
+        const c = counts[o]; const pct = n? (c/n*100):0;
+        if(pct<=0) return '';
+        return `<div class="q-bar-seg ${scale.cls[i]}" style="width:${pct}%" title="${o}: ${c} (${pct.toFixed(0)}%)">${pct>=8?pct.toFixed(0)+'%':''}</div>`;
+      }).join('') + '</div>';
+      legendHtml = '<div class="q-legend">' + scale.opts.map((o,i)=>{
+        const c = counts[o]; const pct = n?(c/n*100):0;
+        return `<span><i class="${scale.cls[i]}"></i> ${o}: ${c} (${pct.toFixed(0)}%)</span>`;
+      }).join('') + '</div>';
+    }
+
+    return `<div class="q-card">
+      <div class="q-card-top">
+        <div class="q-text"><span class="q-num">${num}</span>${meta.texto}</div>
+        <div class="q-n">${n} respuesta(s)</div>
+      </div>
+      <div class="q-meta" style="margin-bottom:10px">
+        <span class="q-badge sec">${meta.seccion}</span>
+        ${meta.res256 ? `<span class="q-badge dom-exp"><i class="fas fa-star"></i> Indicador Res. 256/2016</span>` : ''}
+      </div>
+      ${barHtml}
+      ${legendHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = kpiHtml +
+    (domHtml ? '<div class="section-title"><i class="fas fa-star"></i> Indicadores oficiales · Resolución 256/2016</div>' + domHtml : '') +
+    '<div class="section-title"><i class="fas fa-list-check"></i> Seguimiento por pregunta del formulario</div>' +
+    '<div class="q-grid">' + qHtml + '</div>';
+
+  // guardar filtrado actual para exportar
+  window.__filteredResumen = resumen;
+  window.__filteredRespuestas = respuestas;
+}
+
+/* ════════════════ EXPORTAR A EXCEL ════════════════ */
+function exportExcel(){
+  const resumen = window.__filteredResumen || RAW.resumen;
+  const respuestas = window.__filteredRespuestas || RAW.respuestas;
+  if(!resumen.length){ alert('No hay datos para exportar con los filtros actuales.'); return; }
+
+  const wb = XLSX.utils.book_new();
+  const wsResumen = XLSX.utils.json_to_sheet(resumen);
+  const wsRespuestas = XLSX.utils.json_to_sheet(respuestas);
+  XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+  XLSX.utils.book_append_sheet(wb, wsRespuestas, 'Respuestas');
+  const fecha = new Date().toISOString().slice(0,10);
+  const sufijoMes = (selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles) ? '_' + [...selectedMonths].sort().join('-') : '';
+  XLSX.writeFile(wb, `Base_Encuestas_Satisfaccion_${currentEnt||'FOCA-VIU'}${sufijoMes}_${fecha}.xlsx`);
+}
+
+/* ════════════════ GENERAR INFORME PDF DETALLADO ════════════════ */
+const COLOR_HEX = {
+  'c-mb':'#15803d','c-b':'#65a30d','c-r':'#d97706','c-m':'#ea580c','c-mm':'#b91c1c',
+  'c-si':'#15803d','c-no':'#b91c1c',
+  'c-dsi':'#15803d','c-psi':'#65a30d','c-pno':'#d97706','c-dno':'#b91c1c'
+};
+
+function filtrosActivosTexto(){
+  const partes = [];
+  partes.push('Institución: ' + (currentEnt || 'Todas (FOCA y VIU)'));
+  const sede = document.getElementById('f-sede').value;
+  partes.push('Sede: ' + (sede || 'Todas'));
+  const pagador = document.getElementById('f-pagador').value;
+  partes.push('EPS / Medicina prepagada: ' + (pagador || 'Todas'));
+  if(selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles){
+    partes.push('Meses: ' + [...selectedMonths].sort().map(mesLabel).join(', '));
+  } else {
+    partes.push('Meses: Todos');
+  }
+  const soloRes256 = document.getElementById('f-dominio').value === 'res256';
+  if(soloRes256) partes.push('Solo indicadores Resolución 256/2016');
+  return partes;
+}
+
+function generarInformePDF(){
+  const resumen = window.__filteredResumen || RAW.resumen;
+  const respuestas = window.__filteredRespuestas || RAW.respuestas;
+  if(!resumen.length){ alert('No hay datos para generar el informe con los filtros actuales.'); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const PW = 210, MX = 14;
+  let y = 16;
+
+  function checkPageBreak(needed){
+    if(y + needed > 285){ doc.addPage(); drawFooterMark(); y = 16; }
+  }
+  function drawFooterMark(){
+    const page = doc.internal.getNumberOfPages();
+    doc.setFontSize(8); doc.setTextColor(150);
+    doc.text('Informe de Encuestas de Satisfacción · FOCA / VIU', MX, 292);
+    doc.text('Pág. ' + page, PW-MX, 292, {align:'right'});
+  }
+  function hex2rgb(hex){
+    const v = parseInt(hex.slice(1),16);
+    return [(v>>16)&255,(v>>8)&255,v&255];
+  }
+
+  /* ── Encabezado ── */
+  doc.setFillColor(30,60,114);
+  doc.rect(0,0,PW,24,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(15); doc.setFont(undefined,'bold');
+  doc.text('INFORME DE ENCUESTAS DE SATISFACCIÓN', MX, 11);
+  doc.setFontSize(9); doc.setFont(undefined,'normal');
+  doc.text((currentEnt ? currentEnt : 'FOCA / VIU') + ' · Generado el ' + new Date().toLocaleString('es-CO'), MX, 18);
+  y = 30;
+
+  /* ── Filtros activos ── */
+  doc.setTextColor(70,85,105); doc.setFontSize(9); doc.setFont(undefined,'bold');
+  doc.text('Filtros aplicados al informe:', MX, y); y += 5;
+  doc.setFont(undefined,'normal');
+  filtrosActivosTexto().forEach(t=>{ doc.text('• ' + t, MX, y); y += 4.6; });
+  y += 3;
+
+  /* ── KPIs ── */
+  const total = resumen.length;
+  const promedios = resumen.map(r=>parseFloat(r['% Satisfacción Total'])).filter(v=>!isNaN(v));
+  const promedioGlobal = promedios.length ? (promedios.reduce((a,b)=>a+b,0)/promedios.length).toFixed(1) : '—';
+  const altos = promedios.filter(v=>v>=85).length;
+  const medios = promedios.filter(v=>v>=70 && v<85).length;
+  const bajos = promedios.filter(v=>v<70).length;
+
+  const kpis = [
+    ['Encuestas', String(total), [30,60,114]],
+    ['Satisf. global', promedioGlobal + (promedioGlobal!=='—'?'%':''), [30,60,114]],
+    ['Alta ≥85%', String(altos), [21,128,61]],
+    ['Media 70-84%', String(medios), [180,83,9]],
+    ['Baja <70%', String(bajos), [185,28,28]]
+  ];
+  const kw = (PW - 2*MX - 4*4)/5;
+  kpis.forEach((k,i)=>{
+    const kx = MX + i*(kw+4);
+    doc.setFillColor(241,245,249); doc.roundedRect(kx,y,kw,18,2,2,'F');
+    doc.setTextColor(...k[2]); doc.setFontSize(13); doc.setFont(undefined,'bold');
+    doc.text(k[1], kx+kw/2, y+9, {align:'center'});
+    doc.setTextColor(100,116,139); doc.setFontSize(7); doc.setFont(undefined,'normal');
+    doc.text(k[0], kx+kw/2, y+15, {align:'center'});
+  });
+  y += 26;
+
+  /* ── Indicadores Resolución 256/2016 ── */
+  const res256Ids = Object.keys(RAW.questions).filter(qid => RAW.questions[qid].res256);
+  if(res256Ids.length){
+    checkPageBreak(10+res256Ids.length*16);
+    doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
+    doc.text('INDICADORES OFICIALES · RESOLUCIÓN 256/2016', MX, y); y += 6;
+    res256Ids.forEach(qid=>{
+      const meta = RAW.questions[qid]; const num = qid.replace('q','');
+      const vals = respuestas.filter(r=>String(r['N° Pregunta'])===num && r['Valor (%)']!=='' && !isNaN(parseFloat(r['Valor (%)']))).map(r=>parseFloat(r['Valor (%)']));
+      const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
+      checkPageBreak(14);
+      doc.setFillColor(238,242,255); doc.roundedRect(MX,y,PW-2*MX,12,2,2,'F');
+      doc.setTextColor(91,140,214); doc.setFontSize(9); doc.setFont(undefined,'bold');
+      doc.text('P'+num+' · '+meta.indicador, MX+3, y+5);
+      doc.setTextColor(30,60,114); doc.setFontSize(11);
+      doc.text((avg!=='—'?avg+'%':'—'), PW-MX-3, y+5, {align:'right'});
+      doc.setTextColor(100,116,139); doc.setFontSize(7.5); doc.setFont(undefined,'normal');
+      doc.text(vals.length+' respuesta(s) evaluadas', MX+3, y+9.5);
+      y += 15;
+    });
+    y += 3;
+  }
+
+  /* ── Detalle por pregunta ── */
+  checkPageBreak(10);
+  doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
+  doc.text('SEGUIMIENTO DETALLADO POR PREGUNTA', MX, y); y += 7;
+
+  Object.keys(RAW.questions).forEach(qid=>{
+    const meta = RAW.questions[qid];
+    const num = qid.replace('q','');
+    const respsQ = respuestas.filter(r=>String(r['N° Pregunta'])===num);
+    const n = respsQ.length;
+    const scale = scaleFor(qid);
+
+    checkPageBreak(28);
+    doc.setTextColor(30,41,59); doc.setFontSize(9.5); doc.setFont(undefined,'bold');
+    const qLines = doc.splitTextToSize('P'+num+'. '+meta.texto, PW-2*MX-30);
+    doc.text(qLines, MX, y);
+    doc.setTextColor(148,163,184); doc.setFontSize(8); doc.setFont(undefined,'normal');
+    doc.text(n+' resp.', PW-MX, y, {align:'right'});
+    y += qLines.length*4.2 + 1.5;
+
+    doc.setFontSize(7.5); doc.setTextColor(100,116,139);
+    let badge = meta.seccion + (meta.res256 ? '   ★ Indicador Res. 256/2016' : '');
+    doc.text(badge, MX, y); y += 4;
+
+    if(n===0){
+      doc.setFont(undefined,'italic'); doc.setTextColor(180,180,180);
+      doc.text('Sin respuestas para esta combinación de filtros.', MX, y);
+      doc.setFont(undefined,'normal'); y += 7;
+      return;
+    }
+
+    const counts = {}; scale.opts.forEach(o=>counts[o]=0);
+    respsQ.forEach(r=>{ if(counts.hasOwnProperty(r['Respuesta'])) counts[r['Respuesta']]++; });
+
+    // barra apilada vectorial
+    const barW = PW-2*MX, barH = 6;
+    let bx = MX;
+    scale.opts.forEach((o,i)=>{
+      const c = counts[o]; const pct = n? c/n : 0;
+      if(pct<=0) return;
+      const segW = pct*barW;
+      const [r,g,b] = hex2rgb(COLOR_HEX[scale.cls[i]]);
+      doc.setFillColor(r,g,b);
+      doc.rect(bx, y, segW, barH, 'F');
+      if(pct>=0.07){
+        doc.setTextColor(255,255,255); doc.setFontSize(6.5); doc.setFont(undefined,'bold');
+        doc.text(Math.round(pct*100)+'%', bx+segW/2, y+4.2, {align:'center'});
+      }
+      bx += segW;
+    });
+    y += barH + 3;
+
+    // leyenda
+    doc.setFontSize(7); doc.setFont(undefined,'normal'); doc.setTextColor(71,85,105);
+    let lx = MX;
+    scale.opts.forEach((o,i)=>{
+      const c = counts[o]; const pct = n?(c/n*100):0;
+      const txt = o+': '+c+' ('+pct.toFixed(0)+'%)';
+      const w = doc.getTextWidth(txt)+7;
+      if(lx + w > PW-MX){ lx = MX; y += 4.5; }
+      const [r,g,b] = hex2rgb(COLOR_HEX[scale.cls[i]]);
+      doc.setFillColor(r,g,b); doc.rect(lx, y-2.6, 2.6, 2.6, 'F');
+      doc.text(txt, lx+4, y);
+      lx += w;
+    });
+    y += 8;
+  });
+
+  drawFooterMark();
+  const fecha = new Date().toISOString().slice(0,10);
+  const sufijoMes = (selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles) ? '_' + [...selectedMonths].sort().join('-') : '';
+  doc.save(`Informe_Encuestas_Satisfaccion_${currentEnt||'FOCA-VIU'}${sufijoMes}_${fecha}.pdf`);
+}
+
+loadData();
+</script>
+</body>
+</html>

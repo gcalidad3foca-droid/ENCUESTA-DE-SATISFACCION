@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Encuesta de Satisfacción - VIU</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box}
+:root{--blue:#123b6d;--blue2:#1f5d9c;--soft:#eef5fc;--line:#dbe7f3;--text:#24364b;--muted:#6b7c91;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;color:var(--text);background:linear-gradient(180deg,#f7fbff 0%,#eaf3fb 100%);min-height:100vh}
+.container{max-width:980px;margin:0 auto;padding:22px 14px}
+.card{background:#fff;border-radius:22px;box-shadow:0 18px 45px rgba(18,59,109,.12);overflow:hidden;border:1px solid #e8f0f8}
+.header{background:linear-gradient(135deg,#ffffff 0%,#f8fbff 52%,#edf6ff 100%);padding:22px 28px 18px;border-bottom:1px solid var(--line);position:relative}
+.header::after{content:'';position:absolute;right:-80px;top:-80px;width:220px;height:220px;background:rgba(31,93,156,.10);border-radius:50%}
+.header-content{position:relative;z-index:1}
+.logo-section{display:grid;grid-template-columns:150px 1fr 150px;align-items:center;gap:16px;margin-bottom:12px;padding-top:0;min-height:78px}
+.logo{width:140px;height:76px;background:transparent;border-radius:0;display:flex;align-items:center;justify-content:center;overflow:visible;padding:0;transform:none;box-shadow:none}
+.logo img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+.org-name{font-size:23px;font-weight:900;color:var(--blue);letter-spacing:.4px;line-height:1.18;text-align:center;text-transform:uppercase;align-self:center;display:flex;align-items:center;justify-content:center;min-height:56px}
+.main-title{text-align:center;font-size:26px;font-weight:900;margin:6px 0 4px;color:var(--blue);letter-spacing:.3px}
+.subtitle{text-align:center;font-size:14px;color:var(--muted);margin:0}
+.meta-section{padding:24px 26px;background:#fff}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.field label,.service-title{display:block;font-size:12px;font-weight:800;color:var(--blue);margin-bottom:7px;text-transform:uppercase;letter-spacing:.55px}
+.field input,.field select,.field textarea{width:100%;padding:13px 13px;border:1.8px solid var(--line);border-radius:12px;font-size:14px;transition:.25s;background:#fbfdff;font-family:inherit;color:var(--text)}
+.field textarea{min-height:88px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--blue2);box-shadow:0 0 0 4px rgba(31,93,156,.10);background:#fff}
+.service-card{grid-column:1/-1;background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:4px}
+.service-help{margin:0 0 12px;color:var(--muted);font-size:13px}
+.service-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.service-option{display:flex;align-items:center;gap:10px;background:#fff;border:1.8px solid var(--line);border-radius:13px;padding:13px 14px;cursor:pointer;font-weight:750;color:var(--blue);transition:.2s}
+.service-option:hover,.service-option:has(input:checked){border-color:var(--blue2);box-shadow:0 6px 18px rgba(31,93,156,.10);transform:translateY(-1px)}
+.service-option input{width:19px;height:19px;accent-color:var(--blue2)}
+.survey-section{padding:4px 26px 26px}
+.section-title{background:linear-gradient(90deg,var(--blue),var(--blue2));color:#fff;font-weight:900;font-size:14px;padding:14px 18px;border-radius:13px;margin:18px 0 14px;text-transform:uppercase;letter-spacing:.6px;box-shadow:0 8px 20px rgba(18,59,109,.12)}
+.question{border:1px solid var(--line);border-radius:16px;padding:17px;margin-bottom:14px;background:#fff;box-shadow:0 3px 14px rgba(18,59,109,.04)}
+.question-text{font-weight:800;margin-bottom:13px;color:var(--blue);line-height:1.45}
+.qnum{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--blue2);margin-right:5px;font-size:13px}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.option{display:flex;align-items:center;gap:8px;padding:11px;border:1.7px solid var(--line);border-radius:12px;cursor:pointer;transition:.2s;background:#fbfdff;color:#34465b}
+.option:hover,.option:has(input:checked){border-color:var(--blue2);background:#f2f8fe;box-shadow:0 3px 12px rgba(31,93,156,.08)}
+.option input{accent-color:var(--blue2);width:18px;height:18px}
+.hidden{display:none!important}
+.notice{margin:0 26px 22px;background:#f3f8fd;border-left:5px solid var(--blue2);border-radius:12px;padding:14px;font-size:13px;color:#29436b}
+.actions{background:#fff;padding:22px 26px 28px;border-top:1px solid var(--line);display:flex;justify-content:center}
+.btn{display:flex;align-items:center;gap:9px;padding:14px 26px;border:0;border-radius:13px;font-weight:900;font-size:15px;cursor:pointer;transition:.25s;min-width:230px;justify-content:center}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(18,59,109,.18)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.success-modal{position:fixed;inset:0;background:rgba(9,28,54,.48);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px;z-index:9999}
+.success-modal.show{display:flex;animation:fadeIn .22s ease}
+.success-box{width:100%;max-width:410px;background:#fff;border-radius:24px;padding:34px 26px 30px;text-align:center;box-shadow:0 24px 70px rgba(9,28,54,.28);border:1px solid #e7f0f8;animation:popIn .26s ease}
+.success-icon{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#e9f8ef,#d7f1e1);color:#237a3b;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 16px;box-shadow:0 10px 24px rgba(35,122,59,.14)}
+.success-box h2{margin:0 0 8px;color:var(--blue);font-size:25px;font-weight:900}
+.success-box p{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.toast{display:none}
+@media(max-width:768px){
+  body{background:#f8fbff}
+  .container{padding:0;max-width:100%}
+  .card{border-radius:0;box-shadow:none;border:0;min-height:100vh}
+  .header{padding:18px 16px 16px}
+  .header::after{width:165px;height:165px;right:-72px;top:-72px}
+  .logo-section{grid-template-columns:1fr;justify-items:center;text-align:center;gap:7px;margin-bottom:10px;padding-top:0;min-height:auto}
+  .logo{width:138px;height:72px;border-radius:0;padding:0;transform:none;margin:0 auto 2px;box-shadow:none;background:transparent;overflow:visible}
+  .header-spacer{display:none}
+  .org-name{font-size:17px;line-height:1.22;text-align:center;min-height:auto;max-width:92%;margin:0 auto;display:block}
+  .main-title{font-size:20px;line-height:1.2;margin-top:8px}
+  .subtitle{font-size:12.5px;line-height:1.4;max-width:90%;margin-left:auto;margin-right:auto}
+  .meta-section{padding:18px 14px}
+  .meta-grid{grid-template-columns:1fr;gap:13px}
+  .field label,.service-title{font-size:11px;margin-bottom:6px}
+  .field input,.field select,.field textarea{font-size:16px;padding:13px 12px;border-radius:12px}
+  .service-card{padding:14px;border-radius:15px}
+  .service-help{font-size:12.5px;line-height:1.35}
+  .service-options,.options{grid-template-columns:1fr;gap:8px}
+  .service-option,.option{padding:12px 13px;min-height:48px}
+  .survey-section{padding:2px 14px 18px}
+  .section-title{font-size:12.5px;padding:12px 14px;border-radius:12px;margin:16px 0 12px}
+  .question{padding:15px 13px;border-radius:15px;margin-bottom:12px}
+  .question-text{font-size:14.2px;line-height:1.42;margin-bottom:12px}
+  .qnum{min-width:24px;height:24px;font-size:12px}
+  .notice{margin:0 14px 18px;font-size:12.5px;line-height:1.45;padding:12px}
+  .actions{padding:18px 14px 24px;position:sticky;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px)}
+  .btn{width:100%;min-width:0;padding:15px 18px;font-size:15px;border-radius:14px}
+  .success-box{max-width:350px;border-radius:22px;padding:30px 22px 26px}
+  .success-icon{width:70px;height:70px;font-size:31px}
+  .success-box h2{font-size:23px}
+  .success-box p{font-size:14px}
+}
+@media(max-width:430px){
+  .header{padding:26px 14px 20px}
+  .logo-section{gap:6px;margin-bottom:9px;padding-top:0}
+  .logo{width:126px;height:66px}
+  .org-name{font-size:15.5px;text-align:center;max-width:96%}
+  .main-title{font-size:19px}
+  .subtitle{font-size:12px;max-width:96%}
+  .question-text{font-size:13.5px}
+  .service-option,.option{font-size:13.5px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card" id="formCard">
+    <div class="header">
+      <div class="header-content">
+        <div class="logo-section"><div class="logo"><img src="https://i.imgur.com/qQ4lN8v.png" alt="Logo VIU"></div><div class="org-name">CLÍNICA OFTALMOLÓGICA INTERNACIONAL</div><div class="header-spacer"></div></div>
+        <h1 class="main-title">ENCUESTA DE SATISFACCIÓN</h1>
+        <p class="subtitle">Formulario institucional para evaluación de experiencia del usuario - VIU</p>
+      </div>
+    </div>
+    <form id="surveyForm">
+      <div class="meta-section">
+        <div class="meta-grid">
+          <div class="field"><label>Nombre completo</label><input id="nombre" name="nombre" type="text" required></div>
+          <div class="field"><label>Identificación</label><input id="identificacion" name="identificacion" type="text" required></div>
+          <div class="field"><label>Fecha de atención</label><input id="fecha" name="fecha" type="date" required></div>
+          <div class="field"><label>Teléfono</label><input id="telefono" name="telefono" type="tel" required></div>
+          <div class="field"><label>Sede de atención</label><select id="sede" name="sede" required><option value="">Seleccione la sede</option><option>SALA AZUL MALL PLAZA</option><option>SALA AZUL VIVA</option></select></div>
+          <div class="field"><label>Medicina prepagada / Modalidad</label><select id="pagador" name="pagador" required><option value="">Seleccione una opción</option><option>COLSANITAS</option><option>COLMÉDICA</option><option>COOMEVA MP</option><option>ALLIANZ</option><option>MED PLUS</option><option>ECOPETROL</option><option>SURAMERICANA</option><option>PARTICULAR</option></select></div>
+          <div class="service-card">
+            <label class="service-title">¿Qué servicios recibió durante su visita? <span style="font-weight:600;text-transform:none;letter-spacing:0">(Puede seleccionar uno o varios)</span></label>
+            <p class="service-help">Seleccione el/los servicio(s) para desplegar únicamente las preguntas correspondientes.</p>
+            <div class="service-options">
+              <label class="service-option"><input type="checkbox" name="servicios" value="Consulta Externa" data-service="consulta"><span>Consulta Externa</span></label>
+              <label class="service-option"><input type="checkbox" name="servicios" value="Ayudas Diagnósticas" data-service="ayudas"><span>Ayudas Diagnósticas</span></label>
+              <label class="service-option"><input type="checkbox" name="servicios" value="Cirugía" data-service="cirugia"><span>Cirugía</span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="survey-section">
+        <div class="question">
+      <div class="question-text"><span class="qnum">1.</span> ¿Cómo califica la atención y el trato recibido en Central de Citas?</div>
+      <div class="options"><label class="option"><input type="radio" name="q1" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q1" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q1" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q1" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q1" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question">
+      <div class="question-text"><span class="qnum">2.</span> ¿Cómo califica la claridad en la información recibida por el agente de Citas?</div>
+      <div class="options"><label class="option"><input type="radio" name="q2" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q2" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q2" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q2" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q2" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question">
+      <div class="question-text"><span class="qnum">3.</span> ¿Cómo califica la atención e información recibida en el área de Admisión y Caja?</div>
+      <div class="options"><label class="option"><input type="radio" name="q3" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q3" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q3" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q3" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q3" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question">
+      <div class="question-text"><span class="qnum">4.</span> Durante su visita a la IPS, ¿evidenció que la institución divulgaba los derechos y deberes de los usuarios (carteleras, folletos, pantallas u otros medios)?</div>
+      <div class="options"><label class="option"><input type="radio" name="q4" value="Sí" data-required="true"><span>Sí</span></label>
+<label class="option"><input type="radio" name="q4" value="No" data-required="true"><span>No</span></label></div>
+    </div>
+        <div class="section-title" data-service-block="consulta">Consulta Externa</div>
+<div class="question" data-service-block="consulta">
+      <div class="question-text"><span class="qnum">5.</span> ¿Cómo califica la atención recibida por el profesional de salud, considerando el trato, la claridad de la información brindada y la resolución de sus inquietudes?</div>
+      <div class="options"><label class="option"><input type="radio" name="q5" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q5" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q5" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q5" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q5" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question" data-service-block="consulta">
+      <div class="question-text"><span class="qnum">6.</span> ¿Cómo le parecieron los tiempos de espera?</div>
+      <div class="options"><label class="option"><input type="radio" name="q6" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q6" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q6" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q6" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q6" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question" data-service-block="consulta">
+      <div class="question-text"><span class="qnum">7.</span> ¿Cómo califica la atención brindada por el personal asistencial (auxiliares de enfermería), considerando la amabilidad, disposición y apoyo durante su atención?</div>
+      <div class="options"><label class="option"><input type="radio" name="q7" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q7" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q7" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q7" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q7" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div>
+        <div class="section-title" data-service-block="ayudas">Ayudas Diagnósticas</div>
+<div class="question" data-service-block="ayudas">
+      <div class="question-text"><span class="qnum">8.</span> ¿Cómo califica la atención recibida en el área de Ayudas Diagnósticas, considerando el trato brindado y la claridad de la información proporcionada?</div>
+      <div class="options"><label class="option"><input type="radio" name="q8" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q8" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q8" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q8" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q8" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div>
+        <div class="section-title" data-service-block="cirugia">Cirugía</div>
+<div class="question" data-service-block="cirugia">
+      <div class="question-text"><span class="qnum">9.</span> ¿Cómo califica la atención e información recibida en el área de Programación de Cirugía?</div>
+      <div class="options"><label class="option"><input type="radio" name="q9" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q9" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q9" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q9" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q9" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question" data-service-block="cirugia">
+      <div class="question-text"><span class="qnum">10.</span> ¿Recibió el consentimiento informado?</div>
+      <div class="options"><label class="option"><input type="radio" name="q10" value="Sí" data-required="true"><span>Sí</span></label>
+<label class="option"><input type="radio" name="q10" value="No" data-required="true"><span>No</span></label></div>
+    </div><div class="question" data-service-block="cirugia">
+      <div class="question-text"><span class="qnum">11.</span> ¿Cómo califica la atención recibida en el Área de Cirugía, considerando el trato recibido, la claridad de la información y el acompañamiento brindado durante el proceso?</div>
+      <div class="options"><label class="option"><input type="radio" name="q11" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q11" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q11" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q11" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q11" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div>
+        <div class="question">
+      <div class="question-text"><span class="qnum">12.</span> ¿Considera que los procesos e infraestructura de la clínica le generan seguridad?</div>
+      <div class="options"><label class="option"><input type="radio" name="q12" value="Sí" data-required="true"><span>Sí</span></label>
+<label class="option"><input type="radio" name="q12" value="No" data-required="true"><span>No</span></label></div>
+    </div><div class="question">
+      <div class="question-text"><span class="qnum">13.</span> ¿Cómo calificaría su experiencia global respecto a los servicios de salud que ha recibido a través de su IPS?</div>
+      <div class="options"><label class="option"><input type="radio" name="q13" value="Muy Buena" data-required="true"><span>Muy Buena</span></label>
+<label class="option"><input type="radio" name="q13" value="Buena" data-required="true"><span>Buena</span></label>
+<label class="option"><input type="radio" name="q13" value="Regular" data-required="true"><span>Regular</span></label>
+<label class="option"><input type="radio" name="q13" value="Mala" data-required="true"><span>Mala</span></label>
+<label class="option"><input type="radio" name="q13" value="Muy Mala" data-required="true"><span>Muy Mala</span></label></div>
+    </div><div class="question">
+      <div class="question-text"><span class="qnum">14.</span> ¿Recomendaría a sus familiares y amigos esta IPS?</div>
+      <div class="options"><label class="option"><input type="radio" name="q14" value="Definitivamente sí" data-required="true"><span>Definitivamente sí</span></label>
+<label class="option"><input type="radio" name="q14" value="Probablemente sí" data-required="true"><span>Probablemente sí</span></label>
+<label class="option"><input type="radio" name="q14" value="Probablemente no" data-required="true"><span>Probablemente no</span></label>
+<label class="option"><input type="radio" name="q14" value="Definitivamente no" data-required="true"><span>Definitivamente no</span></label></div>
+    </div>
+        <div class="field"><label>Observaciones o comentarios adicionales</label><textarea id="observaciones" name="observaciones" placeholder="Escriba aquí cualquier comentario adicional del usuario..."></textarea></div>
+      </div>
+      <p class="notice"><strong>Nota:</strong> La información registrada permite identificar oportunidades de mejora en la atención y fortalecer la experiencia de nuestros usuarios.</p>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-check-circle"></i> Finalizar encuesta</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="success-modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+  <div class="success-box">
+    <div class="success-icon"><i class="fas fa-check"></i></div>
+    <h2 id="successTitle">Encuesta enviada</h2>
+    <p>Muchas gracias por compartir su experiencia. Su opinión nos ayuda a mejorar continuamente.</p>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const COMPANY = 'VIU';
+const STORAGE_KEY = 'encuesta_satisfaccion_' + COMPANY.toLowerCase();
+// Pegue aquí la URL del Web App de Google Apps Script (la misma URL se usa en el formulario de FOCA y en el de VIU).
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2alUFqRFN2jhbVr4afea-NdR1Uyg5ZnruFdryMbTRT_JFe93MF4lgwRusulELIJvLOg/exec';
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200); }
+function updateServiceBlocks(){
+  const selected = Array.from(document.querySelectorAll('input[data-service]:checked')).map(x=>x.dataset.service);
+  document.querySelectorAll('[data-service-block]').forEach(block=>{
+    const show = selected.includes(block.dataset.serviceBlock);
+    block.classList.toggle('hidden', !show);
+    block.querySelectorAll('input[data-required="true"]').forEach(input=>{ input.required = show; if(!show) input.checked=false; });
+  });
+}
+function getData(){
+  const fd=new FormData(document.getElementById('surveyForm')); const data={};
+  for(const [k,v] of fd.entries()){ if(data[k]){ if(!Array.isArray(data[k])) data[k]=[data[k]]; data[k].push(v); } else data[k]=v; }
+  data.enviadoEn = new Date().toISOString();
+  return data;
+}
+document.querySelectorAll('input[data-service]').forEach(chk=>chk.addEventListener('change', updateServiceBlocks));
+document.getElementById('surveyForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  if(document.querySelectorAll('input[data-service]:checked').length===0){ showToast('Seleccione al menos un servicio recibido.'); document.querySelector('.service-card').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  updateServiceBlocks();
+  if(!this.checkValidity()){ this.reportValidity(); return; }
+  const payload = getData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes('PEGUE_AQUI')) {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+    } catch(err) {
+      console.warn('No se pudo enviar a Google Sheets. Se guardó copia local.', err);
+    }
+  }
+  document.getElementById('successModal').classList.add('show');
+  this.reset();
+  updateServiceBlocks();
+});
+updateServiceBlocks();
+</script>
+</body>
+</html>
