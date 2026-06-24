@@ -1,156 +1,187 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Dashboard Encuestas de Satisfacción — FOCA / VIU</title>
+<title>Centro de Análisis · Satisfacción del Usuario — FOCA / VIU</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/SheetJS/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box}
 :root{
-  --blue:#1e3c72;--blue2:#5B8CD6;--viu:#86C5DA;
-  --gray800:#1e293b;--gray600:#475569;--gray400:#94a3b8;--gray200:#e2e8f0;--gray100:#f1f5f9;
-  --green:#15803d;--orange:#b45309;--red:#b91c1c;
-  --shadow:0 4px 14px rgba(30,60,114,.08);
+  --blue:#1e3c72;--blue2:#2a5298;--accent:#5B8CD6;--viu:#86C5DA;
+  --gray800:#1e293b;--gray700:#334155;--gray600:#475569;--gray400:#94a3b8;--gray200:#e2e8f0;--gray100:#f1f5f9;
+  --green:#22c55e;--green-d:#15803d;--orange:#f59e0b;--orange-d:#b45309;--red:#ef4444;--red-d:#b91c1c;
+  --shadow:0 4px 24px rgba(30,60,114,.10);--shadow2:0 8px 40px rgba(30,60,114,.16);
 }
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;background:#f4f7fb;color:var(--gray800)}
-.wrap{max-width:1280px;margin:0 auto;padding:20px 18px 60px}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;margin:0;background:#f4f7fb;color:var(--gray800)}
+.wrap{max-width:1360px;margin:0 auto;padding:0 18px 60px}
 
-/* ── Header ── */
-.dbi-header{background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--gray200);padding:18px 22px;margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
-.dbi-title-wrap{display:flex;flex-direction:column;gap:3px}
-.dbi-title{font-size:18px;font-weight:800;color:var(--blue)}
-.dbi-sub{font-size:12px;color:var(--gray400)}
-.dbi-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.dbi-ent-btns{display:flex;gap:6px;background:var(--gray100);border-radius:12px;padding:4px}
-.dbi-ent-btn{border:0;background:transparent;border-radius:9px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--gray600);transition:.2s}
-.dbi-ent-btn img{height:18px;object-fit:contain}
-.dbi-ent-btn.active{background:#fff;box-shadow:0 2px 8px rgba(30,60,114,.12);color:var(--blue)}
-.db-fsel{padding:9px 12px;border:1.5px solid var(--gray200);border-radius:10px;font-size:12.5px;font-family:inherit;color:var(--gray800);background:#fff}
-.db-btn{border:0;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s}
-.db-btn-ref{background:var(--gray100);color:var(--blue)}
-.db-btn-ref:hover{background:var(--gray200)}
-.db-btn-xls{background:linear-gradient(135deg,#1d9a5c,#15803d);color:#fff;box-shadow:0 6px 16px rgba(21,128,61,.3)}
-.db-btn-xls:hover{transform:translateY(-1px)}
-.db-btn-pdf{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;box-shadow:0 6px 16px rgba(153,27,27,.3)}
-.db-btn-pdf:hover{transform:translateY(-1px)}
+/* ── Header (gradiente oscuro) ── */
+.top-header{background:linear-gradient(135deg,#0a1628 0%,#1e3c72 55%,#2a5298 100%);padding:22px 24px;margin-bottom:0;border-radius:0 0 22px 22px;box-shadow:var(--shadow2)}
+.top-header-row{max-width:1360px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px}
+.th-title{color:#fff;font-size:19px;font-weight:800;letter-spacing:.2px;display:flex;align-items:center;gap:10px}
+.th-title i{color:var(--accent)}
+.th-sub{color:rgba(255,255,255,.6);font-size:12px;margin-top:4px;font-weight:500}
+.th-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dbi-ent-btns{display:flex;gap:4px;background:rgba(255,255,255,.1);border-radius:11px;padding:4px}
+.dbi-ent-btn{border:0;background:transparent;border-radius:8px;padding:7px 13px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:rgba(255,255,255,.7);transition:.2s}
+.dbi-ent-btn img{height:16px;object-fit:contain}
+.dbi-ent-btn.active{background:#fff;color:var(--blue);box-shadow:0 1px 6px rgba(0,0,0,.15)}
+.th-btn{border:0;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s;white-space:nowrap}
+.th-btn-ghost{background:rgba(255,255,255,.1);color:#fff}
+.th-btn-ghost:hover{background:rgba(255,255,255,.18)}
+.th-btn-pdf{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;box-shadow:0 6px 16px rgba(185,28,28,.35)}
+.th-btn-xls{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;box-shadow:0 6px 16px rgba(21,128,61,.35)}
+.th-btn:hover{transform:translateY(-1px)}
 
-/* ── Multi-select de meses ── */
+/* ── Filter bar ── */
+.filterbar{max-width:1360px;margin:-18px auto 22px;background:#fff;border:1px solid var(--gray200);border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:relative;z-index:5}
+.fb-label{font-size:10.5px;font-weight:700;color:var(--gray400);text-transform:uppercase;letter-spacing:.4px;margin-right:2px}
+.db-fsel{padding:8px 11px;border:1.5px solid var(--gray200);border-radius:9px;font-size:12px;font-family:inherit;color:var(--gray800);background:#fff}
+.db-fsel:focus{outline:none;border-color:var(--accent)}
 .mes-wrap{position:relative}
-.mes-btn{padding:9px 12px;border:1.5px solid var(--gray200);border-radius:10px;font-size:12.5px;font-family:inherit;color:var(--gray800);background:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:600}
-.mes-btn:hover{border-color:var(--blue2)}
-.mes-panel{display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--gray200);border-radius:12px;box-shadow:0 14px 34px rgba(30,60,114,.18);padding:10px;width:220px;max-height:280px;overflow-y:auto;z-index:50}
+.mes-btn{padding:8px 11px;border:1.5px solid var(--gray200);border-radius:9px;font-size:12px;font-family:inherit;color:var(--gray800);background:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;font-weight:600}
+.mes-btn:hover{border-color:var(--accent)}
+.mes-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--gray200);border-radius:12px;box-shadow:var(--shadow2);padding:10px;width:220px;max-height:280px;overflow-y:auto;z-index:50}
 .mes-panel.open{display:block}
-.mes-panel-actions{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--blue2);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--gray100)}
-.mes-panel-actions a{cursor:pointer;text-decoration:none;color:var(--blue2)}
+.mes-panel-actions{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--gray100)}
+.mes-panel-actions a{cursor:pointer;text-decoration:none;color:var(--accent)}
 .mes-opt{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:12.5px;color:var(--gray800);cursor:pointer;border-radius:6px}
 .mes-opt:hover{background:var(--gray100)}
-.mes-opt input{accent-color:var(--blue2);width:15px;height:15px}
+.mes-opt input{accent-color:var(--accent);width:15px;height:15px}
 
-/* ── KPI row ── */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
-.kpi-card{background:#fff;border-radius:14px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:14px 16px}
-.kpi-l{font-size:10.5px;font-weight:700;color:var(--gray400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.kpi-v{font-size:26px;font-weight:800;line-height:1;color:var(--gray800)}
-.kpi-s{font-size:11px;color:var(--gray400);margin-top:4px}
+/* ── Stats row ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:14px;padding:18px 18px;border:1px solid var(--gray200);box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
+.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stat-icon.blue{background:#eff6ff;color:#3b82f6}.stat-icon.green{background:#f0fdf4;color:#22c55e}
+.stat-icon.orange{background:#fffbeb;color:#f59e0b}.stat-icon.red{background:#fef2f2;color:#ef4444}
+.stat-number{font-size:25px;font-weight:800;color:var(--gray800);line-height:1}
+.stat-label{font-size:11.5px;color:var(--gray400);font-weight:600;margin-top:3px}
 
-/* ── Domain summary (Res. 256) ── */
-.domain-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.domain-card{background:#fff;border-radius:14px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:14px}
-.domain-card .tag{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:4px 9px;border-radius:8px}
-.domain-card.experiencia .tag{background:#eef2ff;color:#5B8CD6}
-.domain-card.seguridad .tag{background:#fef2f2;color:#b91c1c}
-.domain-card .dv{font-size:24px;font-weight:800;color:var(--blue)}
-.domain-card .dl{font-size:11.5px;color:var(--gray600);margin-top:2px}
+/* ── Grid principal ── */
+.bi-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;margin-bottom:18px}
+.bi-col{display:flex;flex-direction:column;gap:16px}
+.panel{background:#fff;border-radius:16px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:18px 20px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.panel-title{font-size:13.5px;font-weight:800;color:var(--gray800);display:flex;align-items:center;gap:8px}
+.panel-title i{color:var(--accent);font-size:13px}
+.trend-badge{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:9px}
 
-/* ── Section title ── */
-.section-title{font-size:14px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+/* ── Ranking por sección ── */
+.rank-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.rank-name{width:140px;font-size:11.5px;font-weight:700;color:var(--gray700);flex-shrink:0}
+.rank-bar-wrap{flex:1;height:9px;background:var(--gray100);border-radius:6px;overflow:hidden}
+.rank-bar{height:100%;border-radius:6px;transition:width .4s}
+.rank-val{width:78px;text-align:right;font-size:11.5px;font-weight:800;color:var(--gray800);flex-shrink:0}
 
-/* ── Question cards ── */
+/* ── Res 256 gauges ── */
+.gauge-card{border:1px solid var(--gray200);border-radius:13px;padding:14px;margin-bottom:10px;background:linear-gradient(135deg,#f7faff,#fff)}
+.gauge-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.gauge-label{font-size:11px;font-weight:700;color:var(--gray700);line-height:1.35}
+.gauge-tag{font-size:8.5px;font-weight:800;letter-spacing:.4px;color:#5B8CD6;background:#eef2ff;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.gauge-val{font-size:24px;font-weight:800;color:var(--blue)}
+.gauge-bar-wrap{height:7px;background:var(--gray100);border-radius:5px;overflow:hidden;margin-top:6px}
+.gauge-bar{height:100%;border-radius:5px}
+.gauge-n{font-size:10px;color:var(--gray400);margin-top:4px}
+
+/* ── Mejor / Peor ── */
+.mp-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray100)}
+.mp-item:last-child{border-bottom:none}
+.mp-rank{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.mp-text{flex:1;font-size:11.5px;color:var(--gray700);font-weight:600;line-height:1.3}
+.mp-pct{font-size:13px;font-weight:800;flex-shrink:0}
+
+/* ── Comparativo ── */
+.cmp-chart-wrap{position:relative;height:200px}
+
+/* ── Detalle completo (colapsable) ── */
+.detail-toggle{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gray100);color:var(--blue);border:1.5px dashed var(--gray200);border-radius:13px;padding:12px;font-size:12.5px;font-weight:700;cursor:pointer;margin-bottom:16px;transition:.2s}
+.detail-toggle:hover{background:#eef2ff;border-color:var(--accent)}
+.detail-section{display:none}
+.detail-section.open{display:block}
 .q-grid{display:grid;gap:12px}
 .q-card{background:#fff;border-radius:14px;border:1px solid var(--gray200);box-shadow:var(--shadow);padding:16px 18px}
-.q-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.q-num{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;border-radius:50%;background:var(--gray100);color:var(--blue2);font-size:12px;font-weight:800;margin-right:6px}
-.q-text{font-size:13.5px;font-weight:700;color:var(--gray800);line-height:1.4}
-.q-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.q-badge{font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:3px 8px;border-radius:7px;white-space:nowrap}
-.q-badge.sec{background:var(--gray100);color:var(--gray600)}
-.q-badge.dom-exp{background:#eef2ff;color:#5B8CD6}
-.q-badge.dom-seg{background:#fef2f2;color:#b91c1c}
-.q-n{font-size:11px;color:var(--gray400);font-weight:700;white-space:nowrap}
-.q-bar{display:flex;height:26px;border-radius:8px;overflow:hidden;background:var(--gray100);margin-bottom:8px}
-.q-bar-seg{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff;transition:.3s}
-.q-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--gray600)}
+.q-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.q-num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--gray100);color:var(--accent);font-size:11px;font-weight:800;margin-right:6px}
+.q-text{font-size:12.5px;font-weight:700;color:var(--gray800);line-height:1.4}
+.q-badge{font-size:9px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;padding:3px 7px;border-radius:7px;background:var(--gray100);color:var(--gray600)}
+.q-badge.r256{background:#eef2ff;color:#5B8CD6}
+.q-n{font-size:10.5px;color:var(--gray400);font-weight:700;white-space:nowrap}
+.q-bar{display:flex;height:24px;border-radius:7px;overflow:hidden;background:var(--gray100);margin-bottom:7px}
+.q-bar-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff}
+.q-legend{display:flex;flex-wrap:wrap;gap:9px;font-size:10.5px;color:var(--gray600)}
 .q-legend span{display:inline-flex;align-items:center;gap:5px}
-.q-legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.q-empty{font-size:12px;color:var(--gray400);font-style:italic}
-
-/* colors per answer option */
+.q-legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.q-empty{font-size:11.5px;color:var(--gray400);font-style:italic}
 .c-mb{background:#15803d}.c-b{background:#65a30d}.c-r{background:#d97706}.c-m{background:#ea580c}.c-mm{background:#b91c1c}
 .c-si{background:#15803d}.c-no{background:#b91c1c}
 .c-dsi{background:#15803d}.c-psi{background:#65a30d}.c-pno{background:#d97706}.c-dno{background:#b91c1c}
 
-.loading,.errbox{text-align:center;padding:50px 20px;color:var(--gray400)}
-.errbox{color:var(--red);font-weight:700}
+.loading,.errbox{text-align:center;padding:60px 20px;color:var(--gray400);font-size:13px}
+.errbox{color:var(--red-d);font-weight:700}
 
-@media(max-width:980px){
-  .kpi-row{grid-template-columns:repeat(2,1fr)}
-  .domain-row{grid-template-columns:1fr}
+@media(max-width:1080px){
+  .bi-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:600px){
-  .dbi-header{flex-direction:column;align-items:stretch}
-  .dbi-filters{justify-content:stretch}
-  .db-fsel,.db-btn{flex:1}
+  .top-header-row{flex-direction:column;align-items:stretch}
+  .th-actions{justify-content:stretch}
+  .stats-row{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="dbi-header">
-    <div class="dbi-title-wrap">
-      <span class="dbi-title">Dashboard · Encuestas de Satisfacción</span>
-      <span class="dbi-sub" id="db-sub">Cargando datos…</span>
+<div class="top-header">
+  <div class="top-header-row">
+    <div>
+      <div class="th-title"><i class="fas fa-chart-line"></i> Centro de Análisis · Satisfacción del Usuario</div>
+      <div class="th-sub" id="db-sub">Cargando datos…</div>
     </div>
-    <div class="dbi-filters">
+    <div class="th-actions">
       <div class="dbi-ent-btns" id="ent-btns">
         <button class="dbi-ent-btn active" data-ent="" onclick="setEnt('',this)"><span>⊕ Todas</span></button>
         <button class="dbi-ent-btn" data-ent="FOCA" onclick="setEnt('FOCA',this)"><img src="https://i.imgur.com/5pNuFBp.png" alt="FOCA"></button>
         <button class="dbi-ent-btn" data-ent="VIU" onclick="setEnt('VIU',this)"><img src="https://i.imgur.com/qQ4lN8v.png" alt="VIU"></button>
       </div>
-      <select class="db-fsel" id="f-sede" onchange="applyFilters()"><option value="">Todas las sedes</option></select>
-      <select class="db-fsel" id="f-pagador" onchange="applyFilters()"><option value="">Todas las EPS / medicina prepagada</option></select>
-      <div class="mes-wrap">
-        <button type="button" class="mes-btn" id="mes-btn" onclick="toggleMesPanel()"><i class="fas fa-calendar-days"></i> <span id="mes-btn-label">Todos los meses</span> <i class="fas fa-chevron-down" style="font-size:9px"></i></button>
-        <div class="mes-panel" id="mes-panel">
-          <div class="mes-panel-actions"><a onclick="selectAllMeses()">Seleccionar todos</a><a onclick="clearMeses()">Limpiar</a></div>
-          <div id="mes-opts"></div>
-        </div>
+      <button class="th-btn th-btn-ghost" onclick="loadData()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+      <button class="th-btn th-btn-pdf" onclick="generarInformePDF()"><i class="fas fa-file-pdf"></i> Generar Informe</button>
+      <button class="th-btn th-btn-xls" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="filterbar">
+    <span class="fb-label">Filtrar por</span>
+    <select class="db-fsel" id="f-sede" onchange="applyFilters()"><option value="">Todas las sedes</option></select>
+    <select class="db-fsel" id="f-pagador" onchange="applyFilters()"><option value="">Todas las EPS / medicina prepagada</option></select>
+    <div class="mes-wrap">
+      <button type="button" class="mes-btn" id="mes-btn" onclick="toggleMesPanel()"><i class="fas fa-calendar-days"></i> <span id="mes-btn-label">Todos los meses</span> <i class="fas fa-chevron-down" style="font-size:9px"></i></button>
+      <div class="mes-panel" id="mes-panel">
+        <div class="mes-panel-actions"><a onclick="selectAllMeses()">Seleccionar todos</a><a onclick="clearMeses()">Limpiar</a></div>
+        <div id="mes-opts"></div>
       </div>
-      <select class="db-fsel" id="f-dominio" onchange="applyFilters()">
-        <option value="">Todas las preguntas</option>
-        <option value="res256">Solo indicadores Res. 256/2016 (preguntas 13 y 14)</option>
-      </select>
-      <button class="db-btn db-btn-ref" onclick="loadData()"><i class="fas fa-sync-alt"></i> Actualizar</button>
-      <button class="db-btn db-btn-pdf" onclick="generarInformePDF()"><i class="fas fa-file-pdf"></i> Generar Informe</button>
-      <button class="db-btn db-btn-xls" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Descargar Excel</button>
     </div>
   </div>
 
   <div id="content">
     <div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Cargando encuestas…</div>
   </div>
-
 </div>
 
 <script>
 /* ════════════════ CONFIGURACIÓN ════════════════ */
-// Pegue aquí la MISMA URL del Web App de Apps Script que configuró en los formularios de FOCA y VIU.
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2alUFqRFN2jhbVr4afea-NdR1Uyg5ZnruFdryMbTRT_JFe93MF4lgwRusulELIJvLOg/exec';
 
-/* ════════════════ ESCALAS Y COLORES POR PREGUNTA ════════════════ */
+/* ════════════════ ESCALAS POR PREGUNTA ════════════════ */
 const SCALE_SETS = {
   likert: { opts:['Muy Buena','Buena','Regular','Mala','Muy Mala'], cls:['c-mb','c-b','c-r','c-m','c-mm'] },
   sino:   { opts:['Sí','No'], cls:['c-si','c-no'] },
@@ -161,28 +192,22 @@ function scaleFor(qid){
   if(qid==='q14') return SCALE_SETS.nps;
   return SCALE_SETS.likert;
 }
+function bandColor(pct){ return pct>=85 ? '#22c55e' : pct>=70 ? '#f59e0b' : '#ef4444'; }
+const MESES_NOMBRE = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function mesKey(fechaStr){ if(!fechaStr) return null; const s=String(fechaStr); return s.length<7? null : s.slice(0,7); }
+function mesLabel(key){ const parts=key.split('-'); return MESES_NOMBRE[parseInt(parts[1],10)-1]+' '+parts[0]; }
 
 let RAW = { questions:{}, resumen:[], respuestas:[] };
 let currentEnt = '';
-let selectedMonths = new Set(); // vacío = todos los meses
-const MESES_NOMBRE = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-function mesKey(fechaStr){
-  if(!fechaStr) return null;
-  const s = String(fechaStr);
-  if(s.length < 7) return null;
-  return s.slice(0,7); // "YYYY-MM"
-}
-function mesLabel(key){
-  const [y,m] = key.split('-');
-  return MESES_NOMBRE[parseInt(m,10)-1] + ' ' + y;
-}
+let selectedMonths = new Set();
+let totalMesesDisponibles = 0;
+let chartTendencia=null, chartCmp=null;
+let detailOpen = false;
 
 async function loadData(){
   document.getElementById('content').innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Cargando encuestas…</div>';
   if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGUE_AQUI')){
-    document.getElementById('content').innerHTML = '<div class="errbox">Falta configurar APPS_SCRIPT_URL en el código del dashboard (línea de configuración al inicio del script).</div>';
-    document.getElementById('db-sub').textContent = 'Sin conexión configurada';
+    document.getElementById('content').innerHTML = '<div class="errbox">Falta configurar APPS_SCRIPT_URL.</div>';
     return;
   }
   try{
@@ -190,9 +215,7 @@ async function loadData(){
     const json = await res.json();
     if(!json.ok) throw new Error(json.error || 'Error desconocido');
     RAW = json;
-    populateSedes();
-    populatePagadores();
-    populateMeses();
+    populateSedes(); populatePagadores(); populateMeses();
     applyFilters();
   }catch(err){
     document.getElementById('content').innerHTML = '<div class="errbox">No se pudo cargar la información: '+err.message+'</div>';
@@ -204,50 +227,35 @@ function populateSedes(){
   const sedes = [...new Set(RAW.resumen.map(r=>r['Sede']).filter(Boolean))].sort();
   sel.innerHTML = '<option value="">Todas las sedes</option>' + sedes.map(s=>`<option value="${s}">${s}</option>`).join('');
 }
-
 function populatePagadores(){
   const sel = document.getElementById('f-pagador');
   const pagadores = [...new Set(RAW.resumen.map(r=>r['EPS / Pagador']).filter(Boolean))].sort();
   sel.innerHTML = '<option value="">Todas las EPS / medicina prepagada</option>' + pagadores.map(p=>`<option value="${p}">${p}</option>`).join('');
 }
-
-let totalMesesDisponibles = 0;
 function populateMeses(){
   const keys = [...new Set(RAW.resumen.map(r=>mesKey(r['Fecha Atención'])).filter(Boolean))].sort();
   totalMesesDisponibles = keys.length;
-  selectedMonths = new Set(); // al recargar, por defecto se ven todos los meses
+  selectedMonths = new Set();
   const opts = document.getElementById('mes-opts');
   if(!keys.length){ opts.innerHTML = '<div class="q-empty">No hay fechas registradas todavía.</div>'; return; }
-  opts.innerHTML = keys.map(k=>`<label class="mes-opt"><input type="checkbox" value="${k}" onchange="toggleMes('${k}',this.checked)"> ${mesLabel(k)}</label>`).join('');
+  opts.innerHTML = keys.map(k=>'<label class="mes-opt"><input type="checkbox" value="'+k+'" onchange="toggleMes(\''+k+'\',this.checked)"> '+mesLabel(k)+'</label>').join('');
   updateMesBtnLabel();
 }
-
-function toggleMesPanel(){
-  document.getElementById('mes-panel').classList.toggle('open');
-}
+function toggleMesPanel(){ document.getElementById('mes-panel').classList.toggle('open'); }
 document.addEventListener('click', function(e){
   const wrap = document.querySelector('.mes-wrap');
   if(wrap && !wrap.contains(e.target)) document.getElementById('mes-panel').classList.remove('open');
 });
-
-function toggleMes(key, checked){
-  if(checked) selectedMonths.add(key); else selectedMonths.delete(key);
-  updateMesBtnLabel();
-  applyFilters();
-}
+function toggleMes(key, checked){ if(checked) selectedMonths.add(key); else selectedMonths.delete(key); updateMesBtnLabel(); applyFilters(); }
 function selectAllMeses(){
   const boxes = document.querySelectorAll('#mes-opts input[type=checkbox]');
   selectedMonths = new Set([...boxes].map(c=>c.value));
-  boxes.forEach(c=>c.checked=true);
-  updateMesBtnLabel();
-  applyFilters();
+  boxes.forEach(c=>c.checked=true); updateMesBtnLabel(); applyFilters();
 }
 function clearMeses(){
-  // "Limpiar" deja la selección vacía visualmente marcada como "ningún mes" -> se interpreta como todos por defecto si no se marca nada
   selectedMonths = new Set();
   document.querySelectorAll('#mes-opts input[type=checkbox]').forEach(c=>c.checked=false);
-  updateMesBtnLabel();
-  applyFilters();
+  updateMesBtnLabel(); applyFilters();
 }
 function updateMesBtnLabel(){
   const label = document.getElementById('mes-btn-label');
@@ -255,145 +263,266 @@ function updateMesBtnLabel(){
   else if(selectedMonths.size===1) label.textContent = mesLabel([...selectedMonths][0]);
   else label.textContent = selectedMonths.size + ' meses seleccionados';
 }
-
 function setEnt(ent, btn){
   currentEnt = ent;
   document.querySelectorAll('.dbi-ent-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   applyFilters();
 }
+function toggleDetail(){
+  detailOpen = !detailOpen;
+  document.getElementById('detail-section').classList.toggle('open', detailOpen);
+  document.getElementById('detail-toggle-label').textContent = detailOpen ? 'Ocultar detalle completo por pregunta' : 'Ver detalle completo por pregunta (14)';
+}
 
 function applyFilters(){
   const sede = document.getElementById('f-sede').value;
   const pagador = document.getElementById('f-pagador').value;
-  const soloRes256 = document.getElementById('f-dominio').value === 'res256';
-
-  let resumen = RAW.resumen.filter(r =>
-    (!currentEnt || r['Institución']===currentEnt) &&
-    (!sede || r['Sede']===sede) &&
-    (!pagador || r['EPS / Pagador']===pagador) &&
-    (selectedMonths.size===0 || selectedMonths.has(mesKey(r['Fecha Atención'])))
-  );
-  const idsValidos = new Set(resumen.map(r=>r['ID Encuesta']));
-  let respuestas = RAW.respuestas.filter(r => {
-    if(!idsValidos.has(r['ID Encuesta'])) return false;
-    if(soloRes256){
-      const qid = 'q'+r['N° Pregunta'];
-      const meta = RAW.questions[qid];
-      if(!meta || !meta.res256) return false;
-    }
-    return true;
+  let resumen = RAW.resumen.filter(function(r){
+    return (!currentEnt || r['Institución']===currentEnt) &&
+      (!sede || r['Sede']===sede) &&
+      (!pagador || r['EPS / Pagador']===pagador) &&
+      (selectedMonths.size===0 || selectedMonths.has(mesKey(r['Fecha Atención'])));
   });
-
+  const idsValidos = new Set(resumen.map(function(r){ return r['ID Encuesta']; }));
+  let respuestas = RAW.respuestas.filter(function(r){ return idsValidos.has(r['ID Encuesta']); });
   render(resumen, respuestas);
 }
 
+/* ════════════════ CÁLCULOS AGREGADOS ════════════════ */
+function calcAgregados(resumen, respuestas){
+  const total = resumen.length;
+  const promedios = resumen.map(function(r){ return parseFloat(r['% Satisfacción Total']); }).filter(function(v){ return !isNaN(v); });
+  const avgGlobal = promedios.length ? (promedios.reduce(function(a,b){return a+b;},0)/promedios.length) : null;
+  const altos = promedios.filter(function(v){ return v>=85; }).length;
+  const medios = promedios.filter(function(v){ return v>=70 && v<85; }).length;
+  const bajos = promedios.filter(function(v){ return v<70; }).length;
+
+  const secMap = {};
+  respuestas.forEach(function(r){
+    const v = parseFloat(r['Valor (%)']); if(isNaN(v)) return;
+    const s = r['Sección'] || 'Otro';
+    if(!secMap[s]) secMap[s]=[];
+    secMap[s].push(v);
+  });
+  const porSeccion = Object.keys(secMap).map(function(s){
+    return { seccion:s, n:secMap[s].length, avg: secMap[s].reduce(function(a,b){return a+b;},0)/secMap[s].length };
+  }).sort(function(a,b){ return b.avg-a.avg; });
+
+  const qMap = {};
+  respuestas.forEach(function(r){
+    const v = parseFloat(r['Valor (%)']); if(isNaN(v)) return;
+    const num = String(r['N° Pregunta']);
+    if(!qMap[num]) qMap[num]=[];
+    qMap[num].push(v);
+  });
+  const porPregunta = Object.keys(qMap).map(function(num){
+    const meta = RAW.questions['q'+num] || {texto:'Pregunta '+num};
+    return { num:num, texto:meta.texto, n:qMap[num].length, avg: qMap[num].reduce(function(a,b){return a+b;},0)/qMap[num].length };
+  }).sort(function(a,b){ return b.avg-a.avg; });
+
+  const res256Ids = Object.keys(RAW.questions).filter(function(qid){ return RAW.questions[qid].res256; });
+  const res256 = res256Ids.map(function(qid){
+    const num = qid.replace('q','');
+    const vals = respuestas.filter(function(r){ return String(r['N° Pregunta'])===num && !isNaN(parseFloat(r['Valor (%)'])); }).map(function(r){ return parseFloat(r['Valor (%)']); });
+    return { qid:qid, num:num, meta:RAW.questions[qid], n:vals.length, avg: vals.length? vals.reduce(function(a,b){return a+b;},0)/vals.length : null };
+  });
+
+  const mesMap = {};
+  resumen.forEach(function(r){
+    const k = mesKey(r['Fecha Atención']); const v = parseFloat(r['% Satisfacción Total']);
+    if(!k || isNaN(v)) return;
+    if(!mesMap[k]) mesMap[k]=[];
+    mesMap[k].push(v);
+  });
+  const tendencia = Object.keys(mesMap).sort().map(function(k){
+    return { key:k, label:mesLabel(k), avg: mesMap[k].reduce(function(a,b){return a+b;},0)/mesMap[k].length, n:mesMap[k].length };
+  });
+
+  let comparativo = [];
+  if(!currentEnt){
+    const instMap = {};
+    resumen.forEach(function(r){
+      const v = parseFloat(r['% Satisfacción Total']); if(isNaN(v)) return;
+      const k = r['Institución']||'—';
+      if(!instMap[k]) instMap[k]=[];
+      instMap[k].push(v);
+    });
+    comparativo = Object.keys(instMap).map(function(k){
+      return {label:k, avg: instMap[k].reduce(function(a,b){return a+b;},0)/instMap[k].length, n:instMap[k].length};
+    });
+  } else {
+    const sedeMap = {};
+    resumen.forEach(function(r){
+      const v = parseFloat(r['% Satisfacción Total']); if(isNaN(v)) return;
+      const k = r['Sede']||'—';
+      if(!sedeMap[k]) sedeMap[k]=[];
+      sedeMap[k].push(v);
+    });
+    comparativo = Object.keys(sedeMap).map(function(k){
+      return {label:k, avg: sedeMap[k].reduce(function(a,b){return a+b;},0)/sedeMap[k].length, n:sedeMap[k].length};
+    }).sort(function(a,b){ return b.avg-a.avg; });
+  }
+
+  return { total:total, avgGlobal:avgGlobal, altos:altos, medios:medios, bajos:bajos, porSeccion:porSeccion, porPregunta:porPregunta, res256:res256, tendencia:tendencia, comparativo:comparativo };
+}
+
+/* ════════════════ RENDER ════════════════ */
 function render(resumen, respuestas){
   document.getElementById('db-sub').textContent = resumen.length + ' encuesta(s) · actualizado ' + new Date().toLocaleString('es-CO');
+  const A = calcAgregados(resumen, respuestas);
+  window.__filteredResumen = resumen;
+  window.__filteredRespuestas = respuestas;
+  window.__AGG = A;
 
-  // ── KPIs generales ──
-  const total = resumen.length;
-  const promedios = resumen.map(r=>parseFloat(r['% Satisfacción Total'])).filter(v=>!isNaN(v));
-  const promedioGlobal = promedios.length ? (promedios.reduce((a,b)=>a+b,0)/promedios.length).toFixed(1) : '—';
-  const altos = promedios.filter(v=>v>=85).length;
-  const medios = promedios.filter(v=>v>=70 && v<85).length;
-  const bajos = promedios.filter(v=>v<70).length;
+  if(!A.total){
+    document.getElementById('content').innerHTML = '<div class="errbox">No hay encuestas para esta combinación de filtros.</div>';
+    return;
+  }
 
-  const kpiHtml = `
-  <div class="kpi-row">
-    <div class="kpi-card"><div class="kpi-l">Encuestas</div><div class="kpi-v">${total}</div><div class="kpi-s">Respondidas en el periodo filtrado</div></div>
-    <div class="kpi-card"><div class="kpi-l">Satisfacción global</div><div class="kpi-v" style="color:var(--blue)">${promedioGlobal}${promedioGlobal!=='—'?'%':''}</div><div class="kpi-s">Promedio de todas las preguntas</div></div>
-    <div class="kpi-card"><div class="kpi-l">Satisfacción alta ≥85%</div><div class="kpi-v" style="color:var(--green)">${altos}</div><div class="kpi-s">${total?Math.round(altos/total*100):0}% de las encuestas</div></div>
-    <div class="kpi-card"><div class="kpi-l">Satisfacción media 70-84%</div><div class="kpi-v" style="color:var(--orange)">${medios}</div><div class="kpi-s">${total?Math.round(medios/total*100):0}% de las encuestas</div></div>
-    <div class="kpi-card"><div class="kpi-l">Satisfacción baja &lt;70%</div><div class="kpi-v" style="color:var(--red)">${bajos}</div><div class="kpi-s">${total?Math.round(bajos/total*100):0}% de las encuestas</div></div>
-  </div>`;
+  const statsHtml =
+    '<div class="stats-row">' +
+      '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div><div class="stat-number">'+A.total+'</div><div class="stat-label">Encuestas</div></div></div>' +
+      '<div class="stat-card"><div class="stat-icon '+(A.avgGlobal>=85?'green':A.avgGlobal>=70?'orange':'red')+'"><i class="fas fa-face-smile"></i></div><div><div class="stat-number">'+(A.avgGlobal!==null?A.avgGlobal.toFixed(1)+'%':'—')+'</div><div class="stat-label">Satisfacción global</div></div></div>' +
+      '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-arrow-trend-up"></i></div><div><div class="stat-number">'+A.altos+'</div><div class="stat-label">Alta ≥85% ('+(A.total?Math.round(A.altos/A.total*100):0)+'%)</div></div></div>' +
+      '<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-scale-balanced"></i></div><div><div class="stat-number">'+A.medios+'</div><div class="stat-label">Media 70-84% ('+(A.total?Math.round(A.medios/A.total*100):0)+'%)</div></div></div>' +
+      '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-circle-exclamation"></i></div><div><div class="stat-number">'+A.bajos+'</div><div class="stat-label">Baja &lt;70% ('+(A.total?Math.round(A.bajos/A.total*100):0)+'%)</div></div></div>' +
+    '</div>';
 
-  // ── Indicadores oficiales Resolución 256/2016 (solo preguntas 13 y 14) ──
-  const res256Ids = Object.keys(RAW.questions).filter(qid => RAW.questions[qid].res256);
-  const domHtml = res256Ids.length ? `<div class="domain-row">` + res256Ids.map(qid=>{
-    const meta = RAW.questions[qid];
-    const num = qid.replace('q','');
-    const vals = respuestas.filter(r=>String(r['N° Pregunta'])===num && r['Valor (%)']!=='' && !isNaN(parseFloat(r['Valor (%)']))).map(r=>parseFloat(r['Valor (%)']));
-    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
-    return `<div class="domain-card experiencia">
-      <div><span class="tag"><i class="fas fa-star"></i> Res. 256/2016</span></div>
-      <div><div class="dv">${avg}${avg!=='—'?'%':''}</div><div class="dl">${meta.indicador} · ${vals.length} respuesta(s)</div></div>
-    </div>`;
-  }).join('') + `</div>` : '';
+  const rankHtml = A.porSeccion.map(function(s){
+    return '<div class="rank-row">' +
+      '<div class="rank-name">'+s.seccion+'</div>' +
+      '<div class="rank-bar-wrap"><div class="rank-bar" style="width:'+s.avg+'%;background:'+bandColor(s.avg)+'"></div></div>' +
+      '<div class="rank-val">'+s.avg.toFixed(1)+'% <span style="color:var(--gray400);font-weight:600">('+s.n+')</span></div>' +
+    '</div>';
+  }).join('');
 
-  // ── Tarjetas por pregunta ──
+  const gaugesHtml = A.res256.map(function(r){
+    return '<div class="gauge-card">' +
+      '<div class="gauge-top"><div class="gauge-label">P'+r.num+' · '+r.meta.indicador.replace(' (Res. 256/2016)','')+'</div><span class="gauge-tag">RES. 256</span></div>' +
+      '<div class="gauge-val" style="color:'+(r.avg!==null?bandColor(r.avg):'#94a3b8')+'">'+(r.avg!==null?r.avg.toFixed(1)+'%':'—')+'</div>' +
+      '<div class="gauge-bar-wrap"><div class="gauge-bar" style="width:'+(r.avg||0)+'%;background:'+(r.avg!==null?bandColor(r.avg):'#cbd5e1')+'"></div></div>' +
+      '<div class="gauge-n">'+r.n+' respuesta(s)</div>' +
+    '</div>';
+  }).join('');
+
+  const mejores = A.porPregunta.slice(0,3);
+  const peores = A.porPregunta.slice(-3).reverse();
+  function mpList(arr, good){
+    return arr.map(function(p,i){
+      return '<div class="mp-item">' +
+        '<div class="mp-rank" style="background:'+(good?'#f0fdf4':'#fef2f2')+';color:'+(good?'#15803d':'#b91c1c')+'">'+(i+1)+'</div>' +
+        '<div class="mp-text">P'+p.num+' · '+p.texto+'</div>' +
+        '<div class="mp-pct" style="color:'+bandColor(p.avg)+'">'+p.avg.toFixed(0)+'%</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  const cmpTitulo = currentEnt ? 'Comparativo por sede' : 'Comparativo FOCA vs VIU';
+
+  document.getElementById('content').innerHTML = statsHtml +
+    '<div class="bi-grid">' +
+      '<div class="bi-col">' +
+        '<div class="panel"><div class="panel-head"><div class="panel-title"><i class="fas fa-chart-line"></i> Tendencia mensual de satisfacción</div><span class="trend-badge" id="trend-badge"></span></div>' +
+          '<div class="cmp-chart-wrap"><canvas id="chartTendencia"></canvas></div></div>' +
+        '<div class="panel"><div class="panel-head"><div class="panel-title"><i class="fas fa-ranking-star"></i> Satisfacción por sección del formulario</div></div>'+rankHtml+'</div>' +
+        '<div class="panel"><div class="panel-head"><div class="panel-title"><i class="fas fa-trophy"></i> Mejor calificadas</div></div>'+mpList(mejores,true)+'</div>' +
+        '<div class="panel"><div class="panel-head"><div class="panel-title"><i class="fas fa-triangle-exclamation"></i> Oportunidades de mejora</div></div>'+mpList(peores,false)+'</div>' +
+      '</div>' +
+      '<div class="bi-col">' +
+        '<div class="panel"><div class="panel-head"><div class="panel-title"><i class="fas fa-star"></i> Indicadores oficiales · Res. 256/2016</div></div>'+gaugesHtml+'</div>' +
+        '<div class="panel"><div class="panel-head"><div class="panel-title"><i class="fas fa-building"></i> '+cmpTitulo+'</div></div>' +
+          '<div class="cmp-chart-wrap"><canvas id="chartCmp"></canvas></div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-toggle" onclick="toggleDetail()"><i class="fas fa-chevron-down"></i> <span id="detail-toggle-label">Ver detalle completo por pregunta (14)</span></div>' +
+    '<div class="detail-section '+(detailOpen?'open':'')+'" id="detail-section"><div class="q-grid" id="q-grid-detail"></div></div>';
+
+  renderDetalle(respuestas);
+  drawCharts(A);
+}
+
+function renderDetalle(respuestas){
   const qIds = Object.keys(RAW.questions);
-  const qHtml = qIds.map(qid=>{
+  const html = qIds.map(function(qid){
     const meta = RAW.questions[qid];
     const num = qid.replace('q','');
-    const respsQ = respuestas.filter(r=>String(r['N° Pregunta'])===num);
+    const respsQ = respuestas.filter(function(r){ return String(r['N° Pregunta'])===num; });
     const n = respsQ.length;
     const scale = scaleFor(qid);
-
     let barHtml = '<div class="q-empty">Sin respuestas para esta combinación de filtros.</div>';
     let legendHtml = '';
     if(n>0){
-      const counts = {};
-      scale.opts.forEach(o=>counts[o]=0);
-      respsQ.forEach(r=>{ if(counts.hasOwnProperty(r['Respuesta'])) counts[r['Respuesta']]++; });
-      barHtml = '<div class="q-bar">' + scale.opts.map((o,i)=>{
-        const c = counts[o]; const pct = n? (c/n*100):0;
-        if(pct<=0) return '';
-        return `<div class="q-bar-seg ${scale.cls[i]}" style="width:${pct}%" title="${o}: ${c} (${pct.toFixed(0)}%)">${pct>=8?pct.toFixed(0)+'%':''}</div>`;
+      const counts = {}; scale.opts.forEach(function(o){ counts[o]=0; });
+      respsQ.forEach(function(r){ if(counts.hasOwnProperty(r['Respuesta'])) counts[r['Respuesta']]++; });
+      barHtml = '<div class="q-bar">' + scale.opts.map(function(o,i){
+        const c=counts[o]; const pct = n?(c/n*100):0; if(pct<=0) return '';
+        return '<div class="q-bar-seg '+scale.cls[i]+'" style="width:'+pct+'%">'+(pct>=8?pct.toFixed(0)+'%':'')+'</div>';
       }).join('') + '</div>';
-      legendHtml = '<div class="q-legend">' + scale.opts.map((o,i)=>{
-        const c = counts[o]; const pct = n?(c/n*100):0;
-        return `<span><i class="${scale.cls[i]}"></i> ${o}: ${c} (${pct.toFixed(0)}%)</span>`;
+      legendHtml = '<div class="q-legend">' + scale.opts.map(function(o,i){
+        const c=counts[o]; const pct=n?(c/n*100):0;
+        return '<span><i class="'+scale.cls[i]+'"></i> '+o+': '+c+' ('+pct.toFixed(0)+'%)</span>';
       }).join('') + '</div>';
     }
-
-    return `<div class="q-card">
-      <div class="q-card-top">
-        <div class="q-text"><span class="q-num">${num}</span>${meta.texto}</div>
-        <div class="q-n">${n} respuesta(s)</div>
-      </div>
-      <div class="q-meta" style="margin-bottom:10px">
-        <span class="q-badge sec">${meta.seccion}</span>
-        ${meta.res256 ? `<span class="q-badge dom-exp"><i class="fas fa-star"></i> Indicador Res. 256/2016</span>` : ''}
-      </div>
-      ${barHtml}
-      ${legendHtml}
-    </div>`;
+    return '<div class="q-card"><div class="q-card-top"><div class="q-text"><span class="q-num">'+num+'</span>'+meta.texto+'</div><div class="q-n">'+n+' resp.</div></div>' +
+      '<div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap"><span class="q-badge">'+meta.seccion+'</span>'+(meta.res256?'<span class="q-badge r256">★ Res. 256/2016</span>':'')+'</div>' +
+      barHtml+legendHtml+'</div>';
   }).join('');
-
-  document.getElementById('content').innerHTML = kpiHtml +
-    (domHtml ? '<div class="section-title"><i class="fas fa-star"></i> Indicadores oficiales · Resolución 256/2016</div>' + domHtml : '') +
-    '<div class="section-title"><i class="fas fa-list-check"></i> Seguimiento por pregunta del formulario</div>' +
-    '<div class="q-grid">' + qHtml + '</div>';
-
-  // guardar filtrado actual para exportar
-  window.__filteredResumen = resumen;
-  window.__filteredRespuestas = respuestas;
+  document.getElementById('q-grid-detail').innerHTML = html;
 }
 
-/* ════════════════ EXPORTAR A EXCEL ════════════════ */
+/* ════════════════ GRÁFICOS ════════════════ */
+function drawCharts(A){
+  if(chartTendencia) chartTendencia.destroy();
+  if(chartCmp) chartCmp.destroy();
+
+  const labels = A.tendencia.map(function(t){ return t.label; });
+  const data = A.tendencia.map(function(t){ return Math.round(t.avg*10)/10; });
+  let trendColor = '#5B8CD6';
+  const badge = document.getElementById('trend-badge');
+  if(data.length>1){
+    const d = data[data.length-1]-data[data.length-2];
+    trendColor = d>=0 ? '#22c55e':'#ef4444';
+    badge.textContent = (d>0?'↑':d<0?'↓':'→')+Math.abs(d).toFixed(1)+'% vs mes anterior';
+    badge.style.cssText = 'background:'+(d>=0?'#f0fdf4':'#fef2f2')+';color:'+(d>=0?'#15803d':'#b91c1c')+';font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:9px';
+  } else { badge.textContent=''; }
+
+  chartTendencia = new Chart(document.getElementById('chartTendencia'), {
+    type:'line',
+    data:{ labels:labels, datasets:[{ data:data, borderColor:trendColor, backgroundColor:(trendColor==='#22c55e'?'rgba(34,197,94,.08)':'rgba(239,68,68,.08)'), borderWidth:2.5, tension:.4, fill:true, pointRadius:5, pointBackgroundColor:'#fff', pointBorderColor:trendColor, pointBorderWidth:2.5 }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(c){ return c.raw+'%'; } } } },
+      scales:{ y:{ min:Math.max(0,Math.min.apply(null,data.concat([100]))-15), max:100, ticks:{ callback:function(v){return v+'%';}, font:{size:9}, color:'#94a3b8' }, grid:{color:'rgba(0,0,0,.03)'} },
+                x:{ ticks:{ font:{size:9,weight:'600'}, color:'#64748b' }, grid:{display:false} } } }
+  });
+
+  const cmpLabels = A.comparativo.map(function(c){ return c.label; });
+  const cmpData = A.comparativo.map(function(c){ return Math.round(c.avg*10)/10; });
+  const cmpColors = A.comparativo.map(function(c){ return bandColor(c.avg); });
+  chartCmp = new Chart(document.getElementById('chartCmp'), {
+    type:'bar',
+    data:{ labels:cmpLabels, datasets:[{ data:cmpData, backgroundColor:cmpColors, borderRadius:8, maxBarThickness:46 }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:function(c){ return c.raw+'%'; } } } },
+      scales:{ x:{ min:0, max:100, ticks:{ callback:function(v){return v+'%';}, font:{size:9}, color:'#94a3b8' }, grid:{color:'rgba(0,0,0,.03)'} },
+                y:{ ticks:{ font:{size:10,weight:'700'}, color:'#334155' }, grid:{display:false} } } }
+  });
+}
+
+/* ════════════════ EXPORTAR EXCEL ════════════════ */
 function exportExcel(){
   const resumen = window.__filteredResumen || RAW.resumen;
   const respuestas = window.__filteredRespuestas || RAW.respuestas;
   if(!resumen.length){ alert('No hay datos para exportar con los filtros actuales.'); return; }
-
   const wb = XLSX.utils.book_new();
-  const wsResumen = XLSX.utils.json_to_sheet(resumen);
-  const wsRespuestas = XLSX.utils.json_to_sheet(respuestas);
-  XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
-  XLSX.utils.book_append_sheet(wb, wsRespuestas, 'Respuestas');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resumen), 'Resumen');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(respuestas), 'Respuestas');
   const fecha = new Date().toISOString().slice(0,10);
   const sufijoMes = (selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles) ? '_' + [...selectedMonths].sort().join('-') : '';
-  XLSX.writeFile(wb, `Base_Encuestas_Satisfaccion_${currentEnt||'FOCA-VIU'}${sufijoMes}_${fecha}.xlsx`);
+  XLSX.writeFile(wb, 'Base_Encuestas_Satisfaccion_'+(currentEnt||'FOCA-VIU')+sufijoMes+'_'+fecha+'.xlsx');
 }
 
-/* ════════════════ GENERAR INFORME PDF DETALLADO ════════════════ */
-const COLOR_HEX = {
-  'c-mb':'#15803d','c-b':'#65a30d','c-r':'#d97706','c-m':'#ea580c','c-mm':'#b91c1c',
-  'c-si':'#15803d','c-no':'#b91c1c',
-  'c-dsi':'#15803d','c-psi':'#65a30d','c-pno':'#d97706','c-dno':'#b91c1c'
-};
-
+/* ════════════════ GENERAR INFORME PDF (consolidado, sin listar las 14 preguntas) ════════════════ */
 function filtrosActivosTexto(){
   const partes = [];
   partes.push('Institución: ' + (currentEnt || 'Todas (FOCA y VIU)'));
@@ -401,181 +530,144 @@ function filtrosActivosTexto(){
   partes.push('Sede: ' + (sede || 'Todas'));
   const pagador = document.getElementById('f-pagador').value;
   partes.push('EPS / Medicina prepagada: ' + (pagador || 'Todas'));
-  if(selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles){
-    partes.push('Meses: ' + [...selectedMonths].sort().map(mesLabel).join(', '));
-  } else {
-    partes.push('Meses: Todos');
-  }
-  const soloRes256 = document.getElementById('f-dominio').value === 'res256';
-  if(soloRes256) partes.push('Solo indicadores Resolución 256/2016');
+  partes.push('Meses: ' + ((selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles) ? [...selectedMonths].sort().map(mesLabel).join(', ') : 'Todos'));
   return partes;
 }
 
 function generarInformePDF(){
-  const resumen = window.__filteredResumen || RAW.resumen;
-  const respuestas = window.__filteredRespuestas || RAW.respuestas;
-  if(!resumen.length){ alert('No hay datos para generar el informe con los filtros actuales.'); return; }
+  const A = window.__AGG;
+  const resumen = window.__filteredResumen || [];
+  if(!A || !resumen.length){ alert('No hay datos para generar el informe con los filtros actuales.'); return; }
 
-  const { jsPDF } = window.jspdf;
+  const jsPDF = window.jspdf.jsPDF;
   const doc = new jsPDF({ unit:'mm', format:'a4' });
   const PW = 210, MX = 14;
   let y = 16;
 
-  function checkPageBreak(needed){
-    if(y + needed > 285){ doc.addPage(); drawFooterMark(); y = 16; }
-  }
-  function drawFooterMark(){
+  function hex2rgb(hex){ const v=parseInt(hex.slice(1),16); return [(v>>16)&255,(v>>8)&255,v&255]; }
+  function checkPageBreak(needed){ if(y+needed>282){ doc.addPage(); footer(); y=16; } }
+  function footer(){
     const page = doc.internal.getNumberOfPages();
     doc.setFontSize(8); doc.setTextColor(150);
     doc.text('Informe de Encuestas de Satisfacción · FOCA / VIU', MX, 292);
-    doc.text('Pág. ' + page, PW-MX, 292, {align:'right'});
-  }
-  function hex2rgb(hex){
-    const v = parseInt(hex.slice(1),16);
-    return [(v>>16)&255,(v>>8)&255,v&255];
+    doc.text('Pág. '+page, PW-MX, 292, {align:'right'});
   }
 
-  /* ── Encabezado ── */
-  doc.setFillColor(30,60,114);
-  doc.rect(0,0,PW,24,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(15); doc.setFont(undefined,'bold');
-  doc.text('INFORME DE ENCUESTAS DE SATISFACCIÓN', MX, 11);
+  doc.setFillColor(10,22,40); doc.rect(0,0,PW,26,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont(undefined,'bold');
+  doc.text('INFORME EJECUTIVO · SATISFACCIÓN DEL USUARIO', MX, 12);
   doc.setFontSize(9); doc.setFont(undefined,'normal');
-  doc.text((currentEnt ? currentEnt : 'FOCA / VIU') + ' · Generado el ' + new Date().toLocaleString('es-CO'), MX, 18);
-  y = 30;
+  doc.text((currentEnt||'FOCA / VIU') + ' · Generado el ' + new Date().toLocaleString('es-CO'), MX, 19);
+  y = 33;
 
-  /* ── Filtros activos ── */
   doc.setTextColor(70,85,105); doc.setFontSize(9); doc.setFont(undefined,'bold');
-  doc.text('Filtros aplicados al informe:', MX, y); y += 5;
+  doc.text('Filtros aplicados:', MX, y); y+=5;
   doc.setFont(undefined,'normal');
-  filtrosActivosTexto().forEach(t=>{ doc.text('• ' + t, MX, y); y += 4.6; });
-  y += 3;
-
-  /* ── KPIs ── */
-  const total = resumen.length;
-  const promedios = resumen.map(r=>parseFloat(r['% Satisfacción Total'])).filter(v=>!isNaN(v));
-  const promedioGlobal = promedios.length ? (promedios.reduce((a,b)=>a+b,0)/promedios.length).toFixed(1) : '—';
-  const altos = promedios.filter(v=>v>=85).length;
-  const medios = promedios.filter(v=>v>=70 && v<85).length;
-  const bajos = promedios.filter(v=>v<70).length;
+  filtrosActivosTexto().forEach(function(t){ doc.text('• '+t, MX, y); y+=4.6; });
+  y+=4;
 
   const kpis = [
-    ['Encuestas', String(total), [30,60,114]],
-    ['Satisf. global', promedioGlobal + (promedioGlobal!=='—'?'%':''), [30,60,114]],
-    ['Alta ≥85%', String(altos), [21,128,61]],
-    ['Media 70-84%', String(medios), [180,83,9]],
-    ['Baja <70%', String(bajos), [185,28,28]]
+    ['Encuestas', String(A.total), [30,60,114]],
+    ['Satisf. global', (A.avgGlobal!==null?A.avgGlobal.toFixed(1)+'%':'—'), [30,60,114]],
+    ['Alta ≥85%', String(A.altos), [21,128,61]],
+    ['Media 70-84%', String(A.medios), [180,83,9]],
+    ['Baja <70%', String(A.bajos), [185,28,28]]
   ];
-  const kw = (PW - 2*MX - 4*4)/5;
-  kpis.forEach((k,i)=>{
-    const kx = MX + i*(kw+4);
+  const kw = (PW-2*MX-4*4)/5;
+  kpis.forEach(function(k,i){
+    const kx = MX+i*(kw+4);
     doc.setFillColor(241,245,249); doc.roundedRect(kx,y,kw,18,2,2,'F');
-    doc.setTextColor(...k[2]); doc.setFontSize(13); doc.setFont(undefined,'bold');
+    doc.setTextColor(k[2][0],k[2][1],k[2][2]); doc.setFontSize(13); doc.setFont(undefined,'bold');
     doc.text(k[1], kx+kw/2, y+9, {align:'center'});
-    doc.setTextColor(100,116,139); doc.setFontSize(7); doc.setFont(undefined,'normal');
+    doc.setTextColor(100,116,139); doc.setFontSize(6.8); doc.setFont(undefined,'normal');
     doc.text(k[0], kx+kw/2, y+15, {align:'center'});
   });
   y += 26;
 
-  /* ── Indicadores Resolución 256/2016 ── */
-  const res256Ids = Object.keys(RAW.questions).filter(qid => RAW.questions[qid].res256);
-  if(res256Ids.length){
-    checkPageBreak(10+res256Ids.length*16);
+  if(A.tendencia.length>1){
+    checkPageBreak(62);
     doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
-    doc.text('INDICADORES OFICIALES · RESOLUCIÓN 256/2016', MX, y); y += 6;
-    res256Ids.forEach(qid=>{
-      const meta = RAW.questions[qid]; const num = qid.replace('q','');
-      const vals = respuestas.filter(r=>String(r['N° Pregunta'])===num && r['Valor (%)']!=='' && !isNaN(parseFloat(r['Valor (%)']))).map(r=>parseFloat(r['Valor (%)']));
-      const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
-      checkPageBreak(14);
-      doc.setFillColor(238,242,255); doc.roundedRect(MX,y,PW-2*MX,12,2,2,'F');
-      doc.setTextColor(91,140,214); doc.setFontSize(9); doc.setFont(undefined,'bold');
-      doc.text('P'+num+' · '+meta.indicador, MX+3, y+5);
-      doc.setTextColor(30,60,114); doc.setFontSize(11);
-      doc.text((avg!=='—'?avg+'%':'—'), PW-MX-3, y+5, {align:'right'});
-      doc.setTextColor(100,116,139); doc.setFontSize(7.5); doc.setFont(undefined,'normal');
-      doc.text(vals.length+' respuesta(s) evaluadas', MX+3, y+9.5);
-      y += 15;
-    });
-    y += 3;
+    doc.text('TENDENCIA MENSUAL', MX, y); y+=4;
+    try{
+      const img = document.getElementById('chartTendencia').toDataURL('image/png',1.0);
+      doc.addImage(img, 'PNG', MX, y, PW-2*MX, 50);
+    }catch(e){}
+    y += 54;
   }
 
-  /* ── Detalle por pregunta ── */
-  checkPageBreak(10);
+  checkPageBreak(10+A.res256.length*15);
   doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
-  doc.text('SEGUIMIENTO DETALLADO POR PREGUNTA', MX, y); y += 7;
-
-  Object.keys(RAW.questions).forEach(qid=>{
-    const meta = RAW.questions[qid];
-    const num = qid.replace('q','');
-    const respsQ = respuestas.filter(r=>String(r['N° Pregunta'])===num);
-    const n = respsQ.length;
-    const scale = scaleFor(qid);
-
-    checkPageBreak(28);
-    doc.setTextColor(30,41,59); doc.setFontSize(9.5); doc.setFont(undefined,'bold');
-    const qLines = doc.splitTextToSize('P'+num+'. '+meta.texto, PW-2*MX-30);
-    doc.text(qLines, MX, y);
-    doc.setTextColor(148,163,184); doc.setFontSize(8); doc.setFont(undefined,'normal');
-    doc.text(n+' resp.', PW-MX, y, {align:'right'});
-    y += qLines.length*4.2 + 1.5;
-
-    doc.setFontSize(7.5); doc.setTextColor(100,116,139);
-    let badge = meta.seccion + (meta.res256 ? '   ★ Indicador Res. 256/2016' : '');
-    doc.text(badge, MX, y); y += 4;
-
-    if(n===0){
-      doc.setFont(undefined,'italic'); doc.setTextColor(180,180,180);
-      doc.text('Sin respuestas para esta combinación de filtros.', MX, y);
-      doc.setFont(undefined,'normal'); y += 7;
-      return;
-    }
-
-    const counts = {}; scale.opts.forEach(o=>counts[o]=0);
-    respsQ.forEach(r=>{ if(counts.hasOwnProperty(r['Respuesta'])) counts[r['Respuesta']]++; });
-
-    // barra apilada vectorial
-    const barW = PW-2*MX, barH = 6;
-    let bx = MX;
-    scale.opts.forEach((o,i)=>{
-      const c = counts[o]; const pct = n? c/n : 0;
-      if(pct<=0) return;
-      const segW = pct*barW;
-      const [r,g,b] = hex2rgb(COLOR_HEX[scale.cls[i]]);
-      doc.setFillColor(r,g,b);
-      doc.rect(bx, y, segW, barH, 'F');
-      if(pct>=0.07){
-        doc.setTextColor(255,255,255); doc.setFontSize(6.5); doc.setFont(undefined,'bold');
-        doc.text(Math.round(pct*100)+'%', bx+segW/2, y+4.2, {align:'center'});
-      }
-      bx += segW;
-    });
-    y += barH + 3;
-
-    // leyenda
-    doc.setFontSize(7); doc.setFont(undefined,'normal'); doc.setTextColor(71,85,105);
-    let lx = MX;
-    scale.opts.forEach((o,i)=>{
-      const c = counts[o]; const pct = n?(c/n*100):0;
-      const txt = o+': '+c+' ('+pct.toFixed(0)+'%)';
-      const w = doc.getTextWidth(txt)+7;
-      if(lx + w > PW-MX){ lx = MX; y += 4.5; }
-      const [r,g,b] = hex2rgb(COLOR_HEX[scale.cls[i]]);
-      doc.setFillColor(r,g,b); doc.rect(lx, y-2.6, 2.6, 2.6, 'F');
-      doc.text(txt, lx+4, y);
-      lx += w;
-    });
-    y += 8;
+  doc.text('INDICADORES OFICIALES · RESOLUCIÓN 256/2016', MX, y); y+=6;
+  A.res256.forEach(function(r){
+    checkPageBreak(14);
+    doc.setFillColor(238,242,255); doc.roundedRect(MX,y,PW-2*MX,12,2,2,'F');
+    doc.setTextColor(91,140,214); doc.setFontSize(9); doc.setFont(undefined,'bold');
+    doc.text('P'+r.num+' · '+r.meta.indicador, MX+3, y+5);
+    doc.setTextColor(30,60,114); doc.setFontSize(11);
+    doc.text(r.avg!==null?r.avg.toFixed(1)+'%':'—', PW-MX-3, y+5, {align:'right'});
+    doc.setTextColor(100,116,139); doc.setFontSize(7.5); doc.setFont(undefined,'normal');
+    doc.text(r.n+' respuesta(s) evaluadas', MX+3, y+9.5);
+    y+=15;
   });
+  y+=3;
 
-  drawFooterMark();
+  checkPageBreak(14+A.porSeccion.length*9);
+  doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
+  doc.text('SATISFACCIÓN POR SECCIÓN DEL FORMULARIO', MX, y); y+=7;
+  const maxNameW = 46;
+  A.porSeccion.forEach(function(s){
+    checkPageBreak(9);
+    doc.setTextColor(51,65,85); doc.setFontSize(8.5); doc.setFont(undefined,'bold');
+    doc.text(s.seccion, MX, y+3.2);
+    const barX = MX+maxNameW, barW = PW-2*MX-maxNameW-22, barH=4.6;
+    doc.setFillColor(241,245,249); doc.roundedRect(barX,y,barW,barH,1.5,1.5,'F');
+    const rgb = hex2rgb(bandColor(s.avg));
+    doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.roundedRect(barX,y,barW*(s.avg/100),barH,1.5,1.5,'F');
+    doc.setTextColor(30,41,59); doc.setFontSize(8.5); doc.setFont(undefined,'bold');
+    doc.text(s.avg.toFixed(1)+'%', PW-MX, y+3.6, {align:'right'});
+    y+=8.5;
+  });
+  y+=4;
+
+  checkPageBreak(58);
+  doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
+  doc.text(currentEnt ? 'COMPARATIVO POR SEDE' : 'COMPARATIVO FOCA vs VIU', MX, y); y+=4;
+  try{
+    const img2 = document.getElementById('chartCmp').toDataURL('image/png',1.0);
+    doc.addImage(img2, 'PNG', MX, y, PW-2*MX, 46);
+  }catch(e){}
+  y += 50;
+
+  checkPageBreak(60);
+  doc.setTextColor(30,60,114); doc.setFontSize(11); doc.setFont(undefined,'bold');
+  doc.text('LO MEJOR CALIFICADO Y OPORTUNIDADES DE MEJORA', MX, y); y+=7;
+  const colW = (PW-2*MX-8)/2;
+  function listaCorta(arr, titulo, colorHex, x){
+    let yy = y;
+    const rgb = hex2rgb(colorHex);
+    doc.setFontSize(8.5); doc.setTextColor(rgb[0],rgb[1],rgb[2]); doc.setFont(undefined,'bold');
+    doc.text(titulo, x, yy); yy+=5;
+    arr.forEach(function(p){
+      doc.setFillColor(rgb[0],rgb[1],rgb[2]); doc.circle(x+2, yy-1, 2, 'F');
+      doc.setTextColor(30,41,59); doc.setFontSize(7.8); doc.setFont(undefined,'normal');
+      const lines = doc.splitTextToSize('P'+p.num+'. '+p.texto+'  ('+p.avg.toFixed(0)+'%)', colW-8);
+      doc.text(lines, x+6, yy);
+      yy += lines.length*3.6 + 2.5;
+    });
+    return yy;
+  }
+  const yA = listaCorta(A.porPregunta.slice(0,3), '✓ MEJOR CALIFICADAS', '#15803d', MX);
+  const yB = listaCorta(A.porPregunta.slice(-3).reverse(), '⚠ A MEJORAR', '#b91c1c', MX+colW+8);
+  y = Math.max(yA,yB) + 4;
+
+  footer();
   const fecha = new Date().toISOString().slice(0,10);
   const sufijoMes = (selectedMonths.size>0 && selectedMonths.size<totalMesesDisponibles) ? '_' + [...selectedMonths].sort().join('-') : '';
-  doc.save(`Informe_Encuestas_Satisfaccion_${currentEnt||'FOCA-VIU'}${sufijoMes}_${fecha}.pdf`);
+  doc.save('Informe_Satisfaccion_'+(currentEnt||'FOCA-VIU')+sufijoMes+'_'+fecha+'.pdf');
 }
 
 loadData();
 </script>
 </body>
 </html>
+
